@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
 
-# URL del sitio donde querés extraer la información
-url_products = "https://smartycart.com.ar/Products/index/clearFilters:true"
+# URL para descargar el CSV
+url_csv = "https://smartycart.com.ar/Products/export"
 
 # Cookies obtenidas de tu navegador
 cookies = {
@@ -12,14 +12,14 @@ cookies = {
 
 # Función para descargar el CSV
 def descargar_csv():
-    # Realizamos la solicitud a la página con las cookies de la sesión
-    response = requests.get(url_products, cookies=cookies)
+    # Realizamos la solicitud a la URL directa del CSV
+    response = requests.get(url_csv, cookies=cookies)
 
     if response.status_code == 200:
         st.write("Productos obtenidos correctamente")
-        return response.content  # Devuelve el contenido para descargar
+        return response.content  # Devuelve el contenido del CSV para la descarga
     else:
-        st.write(f"Error al obtener los productos: {response.status_code}")
+        st.write(f"Error al descargar el CSV: {response.status_code}")
         return None
 
 # Interfaz de Streamlit
