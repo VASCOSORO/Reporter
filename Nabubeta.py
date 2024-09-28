@@ -38,6 +38,7 @@ def obtener_datos():
                         st.write(f"Enlace para seleccionar todos los productos encontrado: {select_all_link['href']}")
                         select_response = requests.get(f"https://smartycart.com.ar{select_all_link['href']}", cookies=cookies)
                         if select_response.status_code == 200:
+                            st.write("Todos los productos han sido seleccionados.")
                             return 1813  # Número de productos seleccionados
                         else:
                             st.write(f"Error al seleccionar todos los productos. Código de estado: {select_response.status_code}")
@@ -78,9 +79,14 @@ st.title("Automatización SmartyCart")
 
 if st.button("Obtener Datos"):
     cantidad_productos = obtener_datos()
-    if cantidad_productos > 0:
-        st.write(f"Se seleccionaron {cantidad_productos} productos.")
-        if st.button("Descargar CSV"):
-            descargar_csv()
+    
+    # Verificar si cantidad_productos es un número válido
+    if isinstance(cantidad_productos, int):
+        if cantidad_productos > 0:
+            st.write(f"Se seleccionaron {cantidad_productos} productos.")
+            if st.button("Descargar CSV"):
+                descargar_csv()
+        else:
+            st.write("No se encontraron productos para descargar.")
     else:
-        st.write("No se encontraron productos para descargar.")
+        st.write(f"Error: cantidad_productos no es un número válido. Valor recibido: {cantidad_productos}")
