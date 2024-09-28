@@ -27,11 +27,11 @@ def obtener_datos():
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Imprimimos el HTML por si necesitamos inspeccionar los elementos
+        # Inspeccionamos el HTML por si necesitamos revisar la estructura
         st.write(soup.prettify())
         
         # Buscar el enlace que selecciona todos los productos
-        select_all_link = soup.find('a', href=True, text=lambda t: "productos de la búsqueda" in t)
+        select_all_link = soup.find('a', href=True, text=lambda t: "Seleccionar los" in t and "productos de la búsqueda" in t)
         
         if select_all_link:
             select_all_url = "https://smartycart.com.ar" + select_all_link['href']
