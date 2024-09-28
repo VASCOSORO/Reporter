@@ -21,11 +21,11 @@ def obtener_datos():
 
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    # Encontrar el enlace para seleccionar todos los productos
-    select_all_link = soup.find('a', href=True, text=lambda t: "Seleccionar los" in t and "productos de la búsqueda" in t)
+    # Buscar el enlace con la clase 'selectAll'
+    select_all_link = soup.find('a', class_="selectAll")
     
     if select_all_link:
-        st.write(f"Enlace para seleccionar todos los productos: {select_all_link['href']}")
+        st.write(f"Enlace para seleccionar todos los productos encontrado: {select_all_link['href']}")
         return 1813  # Número total de productos
     else:
         st.write("No se encontró el enlace para seleccionar todos los productos.")
