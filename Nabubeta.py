@@ -18,6 +18,10 @@ def obtener_datos():
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             
+            # Imprimir todo el HTML de la página para verificar
+            st.write("HTML recibido:")
+            st.code(soup.prettify())  # Muestra el HTML completo en formato legible
+            
             # Paso 1: Buscar y seleccionar el checkbox para seleccionar todos los productos
             st.write("Buscando la casilla de selección...")
             checkbox = soup.find('input', {'class': 'chkSelectAll'})
