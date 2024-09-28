@@ -8,7 +8,11 @@ url = "https://smartycart.com.ar/Products/index/clearFilters:true"
 # Cookies necesarias
 cookies = {
     'CAKEPHP': 'f7dis3hebde797gnj5k9vm9ocs',  # Cookie de sesión
-    'cf_clearance': '5aCqoec_qC0Qya5RWjhAtPaYxP6JN5cBHOXDetMX4wU-1727556739-1.2.1.1-48R9USx.QP5yOVhnm8.SEO.J0P6ZQ5UdW4wA_1uLPfINBVeBZ.0epsHEV9wPWe8z4W5LPfJJO4mgC0EXh68WAWbcekgMiHHjFmSZT1KuoeXgzWhRXmEGFxBBQ8y2zHUeq6QZ3g44wPskPTMDGgN9nx58wR2.rheuZ_TN9sG4QAPRszf9CXcBmWGaMS__TZEsw6VXNhMexTNXKXocGu3DMb4ETEuIYzsOINZWRUMjukjy_XQvajof8PmSFhIhSV3RLGrAwBVHgH_zzwOi84YQ4eBhKVdoqdKLgxHH_V79zYFPEnCgBYepD9deIef2AAqrv0vPZ5lhFec344WIv9koll7EMUz01h17C37wt..gM1zBMZcY5dCgdQKSkqxVVkEAFojHJbL4bVsafQ4VgZoAng',  # Cookie de seguridad
+    'CakeCookie[lang]': 'es',  # Configuración de idioma
+    'CakeCookie[remember_me_cookie]': 'Q2FrZQ==.AlIt6frdN4QUnIb3MqdrWtQKdYii/L2O+k/P+xZTXOT2fxeNDpgdPLFbmffkpXUR6q0WIhHoP9i69oFYAE3Y7HGm1uy+CTm1+5salzLW9/lnIzN2bd+lSoDhEPMRCao=',  # Recordarme
+    '_ga': 'GA1.1.1689468051.1724804957',  # Google Analytics
+    '_ga_HCC7RPPQ8T': 'GS1.1.1727556736.9.1.1727556737.59.0.0',  # Google Analytics tracking
+    'cf_clearance': '5aCqoec_qC0Qya5RWjhAtPaYxP6JN5cBHOXDetMX4wU-1727556739-1.2.1.1-48R9USx.QP5yOVhnm8.SEO.J0P6ZQ5UdW4wA_1uLPfINBVeBZ.0epsHEV9wPWe8z4W5LPfJJO4mgC0EXh68WAWbcekgMiHHjFmSZT1KuoeXgzWhRXmEGFxBBQ8y2zHUeq6QZ3g44wPskPTMDGgN9nx58wR2.rheuZ_TN9sG4QAPRszf9CXcBmWGaMS__TZEsw6VXNhMexTNXKXocGu3DMb4ETEuIYzsOINZWRUMjukjy_XQvajof8PmSFhIhSV3RLGrAwBVHgH_zzwOi84YQ4eBhKVdoqdKLgxHH_V79zYFPEnCgBYepD9deIef2AAqrv0vPZ5lhFec344WIv9koll7EMUz01h17C37wt..gM1zBMZcY5dCgdQKSkqxVVkEAFojHJbL4bVsafQ4VgZoAng',  # Cookie de seguridad Cloudflare
 }
 
 # Función para obtener y seleccionar todos los productos
