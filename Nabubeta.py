@@ -5,21 +5,18 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 import time
-from pyvirtualdisplay import Display
 
 # Función para iniciar sesión en Smarti
 def login_smarti(username, password):
-    # Crear una pantalla virtual
-    display = Display(visible=0, size=(1024, 768))
-    display.start()
-
-    # Configurar opciones de Chrome para modo headless
+    # Configurar opciones de Chrome para modo headless o visible
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920x1080")
+    
+    # Si quieres usar el navegador visible, no agregues "--headless"
+    # chrome_options.add_argument("--headless")  # Descomenta si quieres ejecutar en modo headless
 
     # Inicializar el controlador de Selenium
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
@@ -30,27 +27,32 @@ def login_smarti(username, password):
         time.sleep(3)  # Esperar a que la página cargue
 
         # Encontrar los campos de usuario y contraseña e ingresar las credenciales
-        user_field = driver.find_element(By.ID, "username")  # Ajusta el selector según la página
-        pass_field = driver.find_element(By.ID, "password")  # Ajusta el selector según la página
+        user_field = driver.find_element(By.ID, "username")
+        pass_field = driver.find_element(By.ID, "password")
 
         user_field.send_keys(username)
         pass_field.send_keys(password)
 
+        # Esperar a que completes el reCAPTCHA manualmente
+        st.warning("Por favor, completa el reCAPTCHA manualmente.")
+        time.sleep(60)  # Esperar 60 segundos para que completes el reCAPTCHA
+
         # Enviar el formulario
-        pass_field.submit()
+        submit_button = driver.find_element(By.XPATH, "//button[@type='submit']")
+        submit_button.click()
+
         time.sleep(5)  # Esperar a que el inicio de sesión se procese
 
         # Verificar si el inicio de sesión fue exitoso
         if "dashboard" in driver.current_url.lower():
             return True, "Inicio de sesión exitoso."
         else:
-            return False, "Fallo al iniciar sesión. Verifica tus credenciales."
+            return False, "Fallo al iniciar sesión. Verifica tus credenciales o el reCAPTCHA."
 
     except Exception as e:
         return False, f"Ocurrió un error: {str(e)}"
     finally:
         driver.quit()
-        display.stop()  # Detener la pantalla virtual
 
 # Interfaz de usuario con Streamlit
 def main():
