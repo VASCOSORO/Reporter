@@ -1,3 +1,5 @@
 selenium
 webdriver-manager
 streamlit
+# Dependencias adicionales para evitar errores al ejecutar en modo headless
+pyvirtualdisplay
