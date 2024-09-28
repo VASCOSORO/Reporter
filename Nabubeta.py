@@ -1,66 +1,73 @@
-import json
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 import time
 
-# Función para cargar cookies de sesión desde un archivo
-def load_cookies(driver, cookie_file):
-    with open(cookie_file, 'r') as f:
-        cookies = json.load(f)
-    for cookie in cookies:
-        driver.add_cookie(cookie)
-
-# Función para acceder a Smarty con cookies de sesión
-def access_smarti_with_cookies():
-    # Configurar opciones de Chrome para que el navegador sea visible
+# Configuración de opciones para Selenium (navegador en modo headless)
+def init_browser():
     chrome_options = Options()
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920x1080")
-
-    # Inicializar el controlador de Selenium
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    return driver
 
-    try:
-        # Navegar a la página de Smarty
-        driver.get("https://smartycart.com.ar")
-        time.sleep(3)  # Esperar a que la página cargue
-
-        # Cargar las cookies de sesión desde un archivo JSON
-        load_cookies(driver, 'cookies.json')
-
-        # Refrescar la página para aplicar las cookies y acceder como usuario autenticado
-        driver.refresh()
-        time.sleep(3)
-
-        # Verificar si el acceso fue exitoso
-        if "dashboard" in driver.current_url.lower():
-            st.success("Inicio de sesión exitoso con cookies. Ahora puedes automatizar acciones.")
-        else:
-            st.error("No se pudo iniciar sesión. Verifica las cookies.")
-
-        # Aquí puedes agregar acciones automatizadas (ejemplo: búsqueda, scraping, etc.)
-        # ...
-
-    except Exception as e:
-        st.error(f"Ocurrió un error: {str(e)}")
+# Función para hacer login en SmartyCart y obtener las cookies de sesión
+def login_smarti(driver):
+    url_login = "https://smartycart.com.ar/users/login"
+    driver.get(url_login)
     
-    finally:
-        driver.quit()  # Cerrar el navegador siempre, incluso si ocurre un error
+    # Esperar a que cargue la página de login
+    driver.implicitly_wait(10)
+    
+    # Ingresar las credenciales de login (modificar según los selectores del sitio)
+    username = driver.find_element(By.NAME, 'username')  # Cambiar por el selector correcto
+    password = driver.find_element(By.NAME, 'password')  # Cambiar por el selector correcto
+    
+    # Completar el login
+    username.send_keys('Soop')  # Tu usuario
+    password.send_keys('74108520')  # Tu contraseña
+    login_button = driver.find_element(By.ID, 'login_button')  # Reemplazar por el ID correcto
+    login_button.click()
+    
+    # Esperar unos segundos para completar el login
+    time.sleep(5)
+    
+    # Obtener las cookies de la sesión
+    cookies = driver.get_cookies()
+    return cookies
 
-# Interfaz de usuario con Streamlit
-def main():
-    st.title("Automatización en Smarty usando cookies de sesión")
+# Función para seleccionar todos los productos y descargar CSV
+def download_csv(driver):
+    url_products = "https://smartycart.com.ar/Products/index/clearFilters:true"
+    driver.get(url_products)
+    
+    # Seleccionar la casilla para marcar todos los productos
+    checkbox = driver.find_element(By.XPATH, '//input[@type="checkbox"]')  # Cambiar si es necesario
+    checkbox.click()
+    
+    # Seleccionar la opción para marcar todos los productos de la búsqueda
+    select_all = driver.find_element(By.XPATH, '//a[text()="Seleccionar los xxx productos de la búsqueda"]')  # Cambiar por el texto real
+    select_all.click()
+    
+    # Confirmar la selección y descargar el CSV
+    download_button = driver.find_element(By.XPATH, '//a[text()="Descargar CSV"]')  # Cambiar si es necesario
+    download_button.click()
 
-    st.write("Este script utiliza Selenium y cookies para acceder automáticamente a Smarty.")
+# Interfaz en Streamlit
+st.title("Automatización SmartyCart")
+st.write("Haz clic en el botón para solicitar las cookies y descargar el CSV.")
 
-    if st.button("Acceder a Smarty con cookies"):
-        with st.spinner("Accediendo..."):
-            access_smarti_with_cookies()
-
-if __name__ == "__main__":
-    main()
+if st.button("Solicitar Cookies de Acceso y Descargar CSV"):
+    driver = init_browser()
+    cookies = login_smarti(driver)
+    
+    if cookies:
+        st.write("Autenticación exitosa, iniciando descarga...")
+        download_csv(driver)
+        st.write("Descarga completada.")
+    else:
+        st.write("Error en la autenticación.")
