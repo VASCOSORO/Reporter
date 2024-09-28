@@ -19,14 +19,16 @@ def obtener_datos():
         st.write(f"Error al obtener los productos: {response.status_code}")
         return 0
 
+    # Parsear el HTML
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    # Buscar el enlace con la clase 'selectAll'
+    # Buscar el enlace que selecciona todos los productos
     select_all_link = soup.find('a', class_="selectAll")
     
     if select_all_link:
-        st.write(f"Enlace para seleccionar todos los productos encontrado: {select_all_link['href']}")
-        return 1813  # Número total de productos
+        # Confirmamos que encontramos el enlace para seleccionar todos los productos
+        st.write("Se encontró el enlace para seleccionar todos los productos.")
+        return 1813  # Número total de productos seleccionados
     else:
         st.write("No se encontró el enlace para seleccionar todos los productos.")
         return 0
