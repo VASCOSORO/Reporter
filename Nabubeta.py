@@ -17,15 +17,22 @@ def descargar_csv():
 
     if response.status_code == 200:
         st.write("Productos obtenidos correctamente")
-        # Guardar el contenido en un archivo CSV
-        with open("productos.csv", "wb") as f:
-            f.write(response.content)
-        st.write("CSV descargado exitosamente.")
+        return response.content  # Devuelve el contenido para descargar
     else:
         st.write(f"Error al obtener los productos: {response.status_code}")
+        return None
 
 # Interfaz de Streamlit
 st.title("Automatización SmartyCart")
 
 if st.button("Descargar CSV"):
-    descargar_csv()
+    contenido_csv = descargar_csv()
+    
+    if contenido_csv:
+        # Botón para descargar el archivo CSV
+        st.download_button(
+            label="Descargar CSV",
+            data=contenido_csv,
+            file_name="productos.csv",
+            mime="text/csv"
+        )
