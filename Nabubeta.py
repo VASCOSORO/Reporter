@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
+from bs4 import BeautifulSoup
 
+# URL para obtener los productos
+url_products = "https://smartycart.com.ar/Products/index/clearFilters:true"
 # URL para descargar el CSV
 url_csv = "https://smartycart.com.ar/Products/export"
 
@@ -15,6 +18,37 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
     'Referer': 'https://smartycart.com.ar/Products/index/clearFilters:true'
 }
+
+# Función para obtener los productos y seleccionar todos
+def obtener_datos():
+    # Realizamos la solicitud para obtener la página de productos
+    response = requests.get(url_products, cookies=cookies, headers=headers)
+    
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Buscar el enlace que selecciona todos los productos
+        select_all_link = soup.find('a', text=lambda t: t and "productos de la búsqueda" in t)
+        
+        if select_all_link:
+            select_all_url = "https://smartycart.com.ar" + select_all_link['href']
+            # Simular clic en "Seleccionar todos los productos"
+            response_select_all = requests.get(select_all_url, cookies=cookies, headers=headers)
+            
+            if response_select_all.status_code == 200:
+                st.write("Se seleccionaron todos los productos correctamente.")
+                # Devolvemos la cantidad de productos seleccionados
+                cantidad_productos = select_all_link.text.split()[1]  # Captura el número de productos seleccionados
+                return cantidad_productos
+            else:
+                st.write("Error al seleccionar todos los productos.")
+                return None
+        else:
+            st.write("No se encontró el enlace para seleccionar todos los productos.")
+            return None
+    else:
+        st.write(f"Error al obtener los productos: {response.status_code}")
+        return None
 
 # Función para descargar el CSV
 def descargar_csv():
@@ -31,5 +65,19 @@ def descargar_csv():
 # Interfaz de Streamlit
 st.title("Automatización SmartyCart")
 
-if st.button("Descargar CSV"):
-    contenido_csv = descargar_csv()
+if st.button("Obtener Datos"):
+    cantidad_productos = obtener_datos()
+    
+    if cantidad_productos:
+        st.write(f"Se obtuvieron {cantidad_productos} productos.")
+        if st.button("Descargar CSV"):
+            contenido_csv = descargar_csv()
+            
+            if contenido_csv:
+                # Botón para descargar el archivo CSV
+                st.download_button(
+                    label="Descargar CSV",
+                    data=contenido_csv,
+                    file_name="productos.csv",
+                    mime="text/csv"
+                )
