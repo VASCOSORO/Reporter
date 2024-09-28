@@ -18,21 +18,33 @@ def obtener_datos():
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # Paso 1: Activar la casilla para seleccionar los primeros 20 productos
-            casilla_primera = soup.find('input', {'class': 'chkSelectAllResults', 'type': 'checkbox'})
-            if casilla_primera:
-                # Paso 2: Encontrar el enlace que selecciona todos los productos
-                select_all_link = soup.find('a', text=lambda t: "Seleccionar los" in t and "productos de la búsqueda" in t)
-                if select_all_link:
-                    # Confirmar selección de los 1813 productos
-                    st.write(f"Enlace encontrado: {select_all_link['href']}")
-                    select_response = requests.get(f"https://smartycart.com.ar{select_all_link['href']}", cookies=cookies)
-                    if select_response.status_code == 200:
-                        return 1813  # Número de productos seleccionados
+            # Paso 1: Buscar y seleccionar el checkbox para seleccionar todos los productos
+            st.write("Buscando la casilla de selección...")
+            checkbox = soup.find('input', {'class': 'chkSelectAll'})
+            
+            if checkbox:
+                st.write("Casilla encontrada. Intentando seleccionarla...")
+                # Simulación de la selección de la casilla
+                select_response = requests.get(url, cookies=cookies, data={'chkSelectAll': '1'})
+                
+                if select_response.status_code == 200:
+                    st.write("Casilla seleccionada correctamente.")
+                    
+                    # Paso 2: Buscar el enlace para seleccionar todos los productos
+                    st.write("Buscando enlace para seleccionar todos los productos...")
+                    select_all_link = soup.find('a', {'class': 'selectAll'})
+                    
+                    if select_all_link:
+                        st.write(f"Enlace para seleccionar todos los productos encontrado: {select_all_link['href']}")
+                        select_response = requests.get(f"https://smartycart.com.ar{select_all_link['href']}", cookies=cookies)
+                        if select_response.status_code == 200:
+                            return 1813  # Número de productos seleccionados
+                        else:
+                            st.write(f"Error al seleccionar todos los productos. Código de estado: {select_response.status_code}")
                     else:
-                        st.write("Error al seleccionar todos los productos.")
+                        st.write("No se encontró el enlace para seleccionar todos los productos.")
                 else:
-                    st.write("No se encontró el enlace para seleccionar todos los productos.")
+                    st.write(f"Error al seleccionar la casilla. Código de estado: {select_response.status_code}")
             else:
                 st.write("No se encontró la casilla para seleccionar los productos.")
         else:
