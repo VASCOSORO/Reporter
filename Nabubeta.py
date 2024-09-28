@@ -1,47 +1,68 @@
+import streamlit as st
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
+import time
 
-# Configurar el acceso a BrowserStack (Reemplazá con tus credenciales)
-BROWSERSTACK_USERNAME = 'your_browserstack_username'
-BROWSERSTACK_ACCESS_KEY = 'your_browserstack_access_key'
+# Función para iniciar sesión en Smarti
+def login_smarti(username, password):
+    # Configurar opciones de Chrome para modo headless
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
 
-# URL para acceder a BrowserStack
-url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
+    # Inicializar el controlador de Selenium
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-# Configurar opciones para el navegador remoto
-desired_cap = {
-    'browser': 'Chrome',
-    'browser_version': 'latest',
-    'os': 'Windows',
-    'os_version': '10',
-    'name': 'Test on Smarti',  # Nombre de la prueba
-    'build': 'Selenium Colab Test',  # Nombre del build
-}
+    try:
+        # Navegar a la página de inicio de sesión
+        driver.get("https://smartycart.com.ar/users/login")
+        time.sleep(3)  # Esperar a que la página cargue
 
-# Conectar a BrowserStack
-driver = webdriver.Remote(
-    command_executor=url,
-    desired_capabilities=desired_cap
-)
+        # Encontrar los campos de usuario y contraseña e ingresar las credenciales
+        user_field = driver.find_element(By.ID, "username")  # Ajusta el selector según la página
+        pass_field = driver.find_element(By.ID, "password")  # Ajusta el selector según la página
 
-# Navegar a la página de inicio de sesión de Smarti
-driver.get('https://smartycart.com.ar/users/login')
+        user_field.send_keys(username)
+        pass_field.send_keys(password)
 
-# Esperar a que la página cargue
-driver.implicitly_wait(10)
+        # Enviar el formulario
+        pass_field.submit()
+        time.sleep(5)  # Esperar a que el inicio de sesión se procese
 
-# Buscar los campos de usuario y contraseña (reemplazá con los IDs correctos)
-username = driver.find_element(By.NAME, 'username')
-password = driver.find_element(By.NAME, 'password')
+        # Verificar si el inicio de sesión fue exitoso
+        if "dashboard" in driver.current_url.lower():
+            return True, "Inicio de sesión exitoso."
+        else:
+            return False, "Fallo al iniciar sesión. Verifica tus credenciales."
 
-# Ingresar las credenciales
-username.send_keys('Soop')
-password.send_keys('74108520')
+    except Exception as e:
+        return False, f"Ocurrió un error: {str(e)}"
+    finally:
+        driver.quit()
 
-# Enviar el formulario
-login_button = driver.find_element(By.NAME, 'login')
-login_button.click()
+# Interfaz de usuario con Streamlit
+def main():
+    st.title("Automatización de Inicio de Sesión en Smarti")
 
-# Continuar interactuando con la página
+    st.write("Este script utiliza Selenium para automatizar el inicio de sesión en Smarti.")
+
+    with st.form("login_form"):
+        username = st.text_input("Usuario", value="Soop")
+        password = st.text_input("Contraseña", type="password", value="74108520")
+        submit_button = st.form_submit_button("Iniciar Sesión")
+
+    if submit_button:
+        with st.spinner("Procesando..."):
+            success, message = login_smarti(username, password)
+            if success:
+                st.success(message)
+                # Aquí puedes agregar acciones adicionales después de iniciar sesión
+            else:
+                st.error(message)
+
+if __name__ == "__main__":
+    main()
