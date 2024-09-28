@@ -72,4 +72,4 @@ if st.button("Obtener Datos"):
         else:
             st.write("No se encontraron productos para descargar.")
     else:
-        st.write(f"Error: cantidad_productos no es un número válido. Valor recib
+        st.write(f"Error: cantidad_productos no es un número válido. Valor recibido: {cantidad_productos}")
