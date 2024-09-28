@@ -8,15 +8,15 @@ import time
 
 # Función para iniciar sesión en Smarti
 def login_smarti(username, password):
-    # Configurar opciones de Chrome para modo headless o visible
+    # Configurar opciones de Chrome para que el navegador sea visible
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920x1080")
-    
-    # Si quieres usar el navegador visible, no agregues "--headless"
-    # chrome_options.add_argument("--headless")  # Descomenta si quieres ejecutar en modo headless
+
+    # Eliminar el modo headless para que puedas interactuar con el navegador
+    # chrome_options.add_argument("--headless")  # No usar headless para poder ver el navegador
 
     # Inicializar el controlador de Selenium
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
@@ -27,17 +27,20 @@ def login_smarti(username, password):
         time.sleep(3)  # Esperar a que la página cargue
 
         # Encontrar los campos de usuario y contraseña e ingresar las credenciales
-        user_field = driver.find_element(By.ID, "username")
-        pass_field = driver.find_element(By.ID, "password")
+        user_field = driver.find_element(By.NAME, "username")  # Ajusta el selector según la página
+        pass_field = driver.find_element(By.NAME, "password")  # Ajusta el selector según la página
 
         user_field.send_keys(username)
         pass_field.send_keys(password)
 
-        # Esperar a que completes el reCAPTCHA manualmente
-        st.warning("Por favor, completa el reCAPTCHA manualmente.")
-        time.sleep(60)  # Esperar 60 segundos para que completes el reCAPTCHA
+        # Mostrar una advertencia en Streamlit para que el usuario resuelva el reCAPTCHA
+        st.warning("Por favor, completa el reCAPTCHA manualmente en el navegador que se abrió.")
+        
+        # Esperar hasta que completes el reCAPTCHA manualmente (espera 60 segundos)
+        st.info("Esperando 60 segundos para que completes el reCAPTCHA...")
+        time.sleep(60)
 
-        # Enviar el formulario
+        # Intentar hacer clic en el botón de "Ingresar" después del reCAPTCHA
         submit_button = driver.find_element(By.XPATH, "//button[@type='submit']")
         submit_button.click()
 
