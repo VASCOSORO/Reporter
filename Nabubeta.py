@@ -8,8 +8,8 @@ import pandas as pd
 # Cargar variables de entorno
 load_dotenv()
 
-EMAIL = os.getenv('EMAIL')
-PASSWORD = os.getenv('PASSWORD')
+EMAIL = os.getenv('jsanovsky@gmail.com')
+PASSWORD = os.getenv('Pasteur39')
 
 # URLs del sitio
 LOGIN_URL = "https://leadsales.services/login"
