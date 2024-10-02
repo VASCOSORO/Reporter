@@ -1,71 +1,76 @@
 import streamlit as st
-import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
+import pandas as pd
+import time
 from dotenv import load_dotenv
 import os
-import pandas as pd
 
 # Cargar variables de entorno
 load_dotenv()
 
-EMAIL = os.getenv('jsanovsky@gmail.com')
-PASSWORD = os.getenv('Pasteur39')
+EMAIL = os.getenv('EMAIL')
+PASSWORD = os.getenv('PASSWORD')
 
 # URLs del sitio
 LOGIN_URL = "https://leadsales.services/login"
 ANALYTICS_URL = "https://leadsales.services/workspace/analytics"
 
-def login(session, email, password):
+def login_selenium(email, password):
     """
-    Función para iniciar sesión en el sitio web.
+    Función para iniciar sesión utilizando Selenium.
     """
     try:
-        # Obtener la página de login para obtener cualquier token necesario (como CSRF)
-        response = session.get(LOGIN_URL)
-        if response.status_code != 200:
-            st.error("No se pudo acceder a la página de login.")
-            return False
+        # Configurar el driver de Chrome
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+        driver.get(LOGIN_URL)
 
-        soup = BeautifulSoup(response.text, 'html.parser')
+        # Esperar a que la página cargue
+        time.sleep(3)
 
-        # Extraer tokens o campos necesarios si es aplicable
-        # Por ejemplo:
-        # csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
+        # Encontrar y rellenar los campos de email y contraseña
+        email_field = driver.find_element(By.NAME, 'email')
+        password_field = driver.find_element(By.NAME, 'password')
 
-        payload = {
-            'email': email,
-            'password': password,
-            # 'csrf_token': csrf_token  # Incluir si es necesario
-        }
+        email_field.send_keys(email)
+        password_field.send_keys(password)
 
-        # Enviar solicitud POST para iniciar sesión
-        post_response = session.post(LOGIN_URL, data=payload)
+        # Enviar el formulario
+        password_field.send_keys(Keys.RETURN)
 
-        # Verificar si el login fue exitoso
-        if post_response.url != LOGIN_URL:
-            return True
+        # Esperar a que se procese el inicio de sesión
+        time.sleep(5)
+
+        # Verificar si el inicio de sesión fue exitoso
+        if driver.current_url != LOGIN_URL:
+            return driver
         else:
-            return False
+            st.error("Error al iniciar sesión. Verifica tus credenciales.")
+            driver.quit()
+            return None
     except Exception as e:
-        st.error(f"Error durante el inicio de sesión: {e}")
-        return False
+        st.error(f"Error durante el inicio de sesión con Selenium: {e}")
+        return None
 
-def obtener_datos_analytics(session):
+def obtener_datos_selenium(driver):
     """
-    Función para obtener datos de la página de analytics.
+    Función para obtener datos de la página de analytics utilizando Selenium.
     """
     try:
-        response = session.get(ANALYTICS_URL)
-        if response.status_code != 200:
-            st.error("No se pudo acceder a la página de analytics.")
-            return None
+        driver.get(ANALYTICS_URL)
+        time.sleep(5)  # Esperar a que la página cargue completamente
 
-        soup = BeautifulSoup(response.text, 'html.parser')
+        # Extraer el contenido de la página
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
 
-        # Aquí debes adaptar el código para extraer los datos específicos que necesitas.
-        # Esto dependerá de la estructura HTML de la página de analytics.
-
-        # Ejemplo: Supongamos que hay una tabla con id 'tabla-analytics'
+        # Adaptar según la estructura HTML de la página de analytics
         tabla = soup.find('table', {'id': 'tabla-analytics'})
         if not tabla:
             st.error("No se encontró la tabla de analytics.")
@@ -84,34 +89,34 @@ def obtener_datos_analytics(session):
         df = pd.DataFrame(filas, columns=headers)
         return df
     except Exception as e:
-        st.error(f"Error al obtener los datos de analytics: {e}")
+        st.error(f"Error al obtener los datos de analytics con Selenium: {e}")
         return None
+    finally:
+        driver.quit()
 
 def main():
     st.set_page_config(page_title="Automatización de Reportes - Analytics", layout="wide")
     st.title("Automatización de Reportes - Analytics")
 
     st.write("""
-    Este aplicativo permite iniciar sesión en [LeadSales](https://leadsales.services/login) y extraer datos de la sección de Analytics.
+    Este aplicativo permite iniciar sesión en [LeadSales](https://leadsales.services/login) y extraer datos de la sección de Analytics utilizando Selenium.
     """)
 
     if st.button("Iniciar Sesión y Obtener Datos de Analytics"):
-        with requests.Session() as session:
-            if login(session, EMAIL, PASSWORD):
-                st.success("Inicio de sesión exitoso.")
-                datos = obtener_datos_analytics(session)
-                if datos is not None:
-                    st.dataframe(datos)
-                    # Opcional: Permitir descargar los datos como CSV
-                    csv = datos.to_csv(index=False).encode('utf-8')
-                    st.download_button(
-                        label="Descargar CSV",
-                        data=csv,
-                        file_name='datos_analytics.csv',
-                        mime='text/csv',
-                    )
-            else:
-                st.error("Error al iniciar sesión. Verifica tus credenciales.")
+        driver = login_selenium(EMAIL, PASSWORD)
+        if driver:
+            st.success("Inicio de sesión exitoso.")
+            datos = obtener_datos_selenium(driver)
+            if datos is not None:
+                st.dataframe(datos)
+                # Opcional: Permitir descargar los datos como CSV
+                csv = datos.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="Descargar CSV",
+                    data=csv,
+                    file_name='datos_analytics.csv',
+                    mime='text/csv',
+                )
 
 if __name__ == "__main__":
     main()
