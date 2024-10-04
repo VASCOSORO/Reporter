@@ -2,13 +2,15 @@ import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-# Credenciales
+# Credenciales de BrowserStack
+BROWSERSTACK_USERNAME = 'tu_usuario'
+BROWSERSTACK_ACCESS_KEY = 'tu_clave_de_acceso'
+
+# Credenciales de EasyBuild
 EMAIL = "SomosMundo"
 PASSWORD = "741085207410P!i"
 
@@ -17,14 +19,24 @@ LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app
 
 def login_selenium(email, password):
     """
-    Función para iniciar sesión utilizando Selenium con Firefox.
+    Función para iniciar sesión utilizando Selenium a través de BrowserStack.
     """
     try:
-        # Configurar el driver de Firefox
-        options = webdriver.FirefoxOptions()
-        options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
-        
-        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+        # Configuración de BrowserStack
+        desired_cap = {
+            'browser': 'Chrome',
+            'browser_version': 'latest',
+            'os': 'Windows',
+            'os_version': '10',
+            'name': 'EasyBuild Login Test',
+            'build': 'Build 1.0'
+        }
+
+        # URL de BrowserStack
+        browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
+
+        # Conectarse a BrowserStack
+        driver = webdriver.Remote(command_executor=browserstack_url, desired_capabilities=desired_cap)
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
