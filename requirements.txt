@@ -6,3 +6,4 @@ libappindicator3-1
 libatk-bridge2.0-0
 libgtk-3-0
 wget
+undetected-chromedriver==3.4.6
