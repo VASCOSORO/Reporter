@@ -1,8 +1,3 @@
-# =================================================
-# ======== VERSION DOBLE  2.o.3 ===================
-# =================================================
-
-
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -101,6 +96,9 @@ def main():
             if screenshot:
                 display_screenshot(screenshot)
             driver.quit()
+
+    # Línea divisoria gris
+    st.markdown("<hr style='border:1px solid gray'>", unsafe_allow_html=True)
 
     # Segundo intento de iniciar sesión (duplicado)
     if st.button("Iniciar Sesión en EasyBuild - Opción 2"):
