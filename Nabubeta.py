@@ -23,29 +23,33 @@ LEADSALES_PASSWORD = "Pasteur39"
 EASYBUILD_LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
 LEADSALES_LOGIN_URL = "https://leadsales.services/login"
 
-def login_selenium(email, password, login_url, email_field_name="username", password_field_name="password"):
+def login_selenium(email, password, login_url, email_field_name="username", password_field_name="password", use_browserstack=True):
     """
-    Función para iniciar sesión utilizando Selenium a través de BrowserStack.
+    Función para iniciar sesión utilizando Selenium, con opción para usar BrowserStack o un controlador local.
     """
     try:
-        # Configuración de BrowserStack con 'options'
-        options = webdriver.ChromeOptions()
-        options.set_capability('bstack:options', {
-            'os': 'Windows',
-            'osVersion': '10',
-            'buildName': 'Build 1.0',
-            'sessionName': 'Login Test',
-            'userName': BROWSERSTACK_USERNAME,
-            'accessKey': BROWSERSTACK_ACCESS_KEY
-        })
-        options.set_capability('browserName', 'Chrome')
-        options.set_capability('browserVersion', 'latest')
+        if use_browserstack:
+            # Configuración de BrowserStack con 'options'
+            options = webdriver.ChromeOptions()
+            options.set_capability('bstack:options', {
+                'os': 'Windows',
+                'osVersion': '10',
+                'buildName': 'Build 1.0',
+                'sessionName': 'Login Test',
+                'userName': BROWSERSTACK_USERNAME,
+                'accessKey': BROWSERSTACK_ACCESS_KEY
+            })
+            options.set_capability('browserName', 'Chrome')
+            options.set_capability('browserVersion', 'latest')
 
-        # URL de BrowserStack
-        browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
+            # URL de BrowserStack
+            browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
 
-        # Conectarse a BrowserStack con 'options'
-        driver = webdriver.Remote(command_executor=browserstack_url, options=options)
+            # Conectarse a BrowserStack con 'options'
+            driver = webdriver.Remote(command_executor=browserstack_url, options=options)
+        else:
+            # Usar controlador local (ChromeDriver)
+            driver = webdriver.Chrome(ChromeDriverManager().install())
 
         # Navegar a la página de inicio de sesión
         driver.get(login_url)
@@ -89,12 +93,15 @@ def main():
     st.title("Automatización de Reportes - EasyBuild y LeadSales")
 
     st.write("""
-    Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) y [LeadSales](https://leadsales.services/login) utilizando Selenium a través de BrowserStack.
+    Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) y [LeadSales](https://leadsales.services/login) utilizando Selenium.
     """)
+
+    # Seleccionar si usar BrowserStack o un controlador local
+    use_browserstack = st.checkbox("Usar BrowserStack", value=True)
 
     # Primer intento de iniciar sesión en EasyBuild
     if st.button("Iniciar Sesión en EasyBuild"):
-        driver, screenshot = login_selenium(EASYBUILD_EMAIL, EASYBUILD_PASSWORD, EASYBUILD_LOGIN_URL)
+        driver, screenshot = login_selenium(EASYBUILD_EMAIL, EASYBUILD_PASSWORD, EASYBUILD_LOGIN_URL, use_browserstack=use_browserstack)
         if driver:
             st.success("Inicio de sesión exitoso en EasyBuild.")
             if screenshot:
@@ -106,7 +113,7 @@ def main():
 
     # Segundo intento de iniciar sesión en LeadSales
     if st.button("Iniciar Sesión en LeadSales"):
-        driver, screenshot = login_selenium(LEADSALES_EMAIL, LEADSALES_PASSWORD, LEADSALES_LOGIN_URL, email_field_name="email", password_field_name="password")
+        driver, screenshot = login_selenium(LEADSALES_EMAIL, LEADSALES_PASSWORD, LEADSALES_LOGIN_URL, email_field_name="email", password_field_name="password", use_browserstack=use_browserstack)
         if driver:
             st.success("Inicio de sesión exitoso en LeadSales.")
             if screenshot:
