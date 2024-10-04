@@ -8,10 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
-
-# Credenciales de BrowserStack
-BROWSERSTACK_USERNAME = 'vascorepo_7EFbsI'
-BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
+from webdriver_manager.chrome import ChromeDriverManager  # Para manejar el driver local
 
 # Credenciales de EasyBuild
 EMAIL = "SomosMundo"
@@ -20,17 +17,14 @@ PASSWORD = "74108520!Ii"  # Contraseña para EasyBuild
 # URL del sitio
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
 SALES_URL = "https://app.easybuild.website/admin/e-commerce/sales"
-CARTS_URL = "https://app.easybuild.website/admin/e-commerce/carts"
-PRODUCTS_URL = "https://app.easybuild.website/admin/e-commerce/products"
 
 def extract_sales_data(driver):
     """
     Función para extraer datos de la tabla de ventas en EasyBuild.
     """
-    # Esperar a que la tabla esté presente
-    wait = WebDriverWait(driver, 10)
-    table = wait.until(EC.presence_of_element_located((By.TAG_NAME, "table")))
-
+    time.sleep(10)  # Asegura que la tabla esté completamente cargada
+    table = driver.find_element(By.TAG_NAME, "table")
+    
     # Extraer los datos de la tabla de ventas
     rows = table.find_elements(By.TAG_NAME, "tr")
     data = []
@@ -54,35 +48,19 @@ def extract_sales_data(driver):
 
 def login_and_extract_selenium(email, password, target_url):
     """
-    Función para iniciar sesión en EasyBuild, navegar a la página seleccionada y extraer datos.
+    Función para iniciar sesión en EasyBuild, navegar a las ventas y extraer la tabla de datos.
     """
     try:
-        # Configuración de BrowserStack con 'options'
-        options = webdriver.ChromeOptions()
-        options.set_capability('bstack:options', {
-            'os': 'Windows',
-            'osVersion': '10',
-            'buildName': 'Build 1.0',
-            'sessionName': 'EasyBuild Extractor',
-            'userName': BROWSERSTACK_USERNAME,
-            'accessKey': BROWSERSTACK_ACCESS_KEY
-        })
-        options.set_capability('browserName', 'Chrome')
-        options.set_capability('browserVersion', 'latest')
-
-        # URL de BrowserStack
-        browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
-
-        # Conectarse a BrowserStack con 'options'
-        driver = webdriver.Remote(command_executor=browserstack_url, options=options)
+        # Configuración del driver local
+        driver = webdriver.Chrome(ChromeDriverManager().install())
 
         # Navegar a la página de inicio de sesión
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
-        wait = WebDriverWait(driver, 10)
-        username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
-        password_field = wait.until(EC.presence_of_element_located((By.NAME, 'password')))
+        time.sleep(5)
+        username_field = driver.find_element(By.NAME, 'username')
+        password_field = driver.find_element(By.NAME, 'password')
 
         # Ingresar las credenciales
         username_field.send_keys(email)
@@ -92,10 +70,10 @@ def login_and_extract_selenium(email, password, target_url):
         # Esperar a que el inicio de sesión sea exitoso
         time.sleep(5)
 
-        # Navegar a la URL seleccionada (Ventas, Productos o Carritos Abandonados)
+        # Navegar a la página de ventas
         driver.get(target_url)
 
-        # Extraer la tabla de datos
+        # Extraer la tabla de ventas
         sales_data = extract_sales_data(driver)
 
         return sales_data
@@ -108,18 +86,12 @@ def main():
     st.set_page_config(page_title="Automatización de EasyBuild", layout="wide")
     st.title("Automatización de EasyBuild")
 
-    # Selección de la página a la que navegar
-    opcion = st.selectbox("Selecciona la página a la que deseas navegar:", 
-                          ["Gestor de Ventas", "Carritos Abandonados", "Productos"])
-
-    # Mapeo de la opción seleccionada a la URL correspondiente
-    target_url = SALES_URL if opcion == "Gestor de Ventas" else CARTS_URL if opcion == "Carritos Abandonados" else PRODUCTS_URL
-
-    if st.button("Iniciar Sesión y Extraer Datos"):
-        sales_data = login_and_extract_selenium(EMAIL, PASSWORD, target_url)
+    if st.button("Iniciar Sesión y Extraer Ventas"):
+        sales_data = login_and_extract_selenium(EMAIL, PASSWORD, SALES_URL)
         if sales_data is not None:
             st.success("Datos extraídos exitosamente.")
             st.dataframe(sales_data)
 
 if __name__ == "__main__":
     main()
+
