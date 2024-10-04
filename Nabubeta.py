@@ -178,7 +178,7 @@ def main():
     use_browserstack = st.checkbox("Usar BrowserStack", value=True)
 
     # Iniciar sesión en EasyBuild
-    if st.button("Iniciar Sesión en EasyBuild"):
+    if st.button("Iniciar Check de Catalogo"):
         driver, screenshot = login_selenium_easybuild(EASYBUILD_EMAIL, EASYBUILD_PASSWORD, EASYBUILD_LOGIN_URL, use_browserstack=use_browserstack)
         if driver:
             st.success("Inicio de sesión exitoso en EasyBuild.")
@@ -190,7 +190,7 @@ def main():
     st.markdown("<hr style='border:1px solid gray'>", unsafe_allow_html=True)
 
     # Iniciar sesión en LeadSales
-    if st.button("Iniciar Sesión en LeadSales"):
+    if st.button("Iniciar LeadSales"):
         driver, screenshot = login_selenium_leadsales(LEADSALES_EMAIL, LEADSALES_PASSWORD, use_browserstack=use_browserstack)
         if driver:
             st.success("Inicio de sesión exitoso en LeadSales.")
