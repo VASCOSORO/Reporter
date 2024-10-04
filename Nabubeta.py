@@ -16,13 +16,13 @@ BROWSERSTACK_USERNAME = 'vascorepo_7EFbsI'
 BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
 
 # Credenciales de Smarty
-SMARTY_EMAIL = "Soop"
+SMARTY_USERNAME = "Soop"
 SMARTY_PASSWORD = "74108520"
 
 # URL de Smarty
 SMARTY_LOGIN_URL = "https://smartycart.com.ar/users/login"
 
-def login_selenium_smart(email, password, use_browserstack=True):
+def login_selenium_smart(username, password, use_browserstack=True):
     """
     Función para iniciar sesión en Smarty con Selenium y manejar el reCAPTCHA.
     """
@@ -61,10 +61,10 @@ def login_selenium_smart(email, password, use_browserstack=True):
         wait = WebDriverWait(driver, 15)
 
         # Encontrar y rellenar los campos de usuario y contraseña
-        username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
-        password_field = wait.until(EC.presence_of_element_located((By.NAME, 'password')))
+        username_field = wait.until(EC.presence_of_element_located((By.NAME, 'data[User][username]')))
+        password_field = wait.until(EC.presence_of_element_located((By.NAME, 'data[User][password]')))
 
-        username_field.send_keys(email)
+        username_field.send_keys(username)
         password_field.send_keys(password)
 
         # Captura de pantalla después de ingresar credenciales
@@ -72,14 +72,14 @@ def login_selenium_smart(email, password, use_browserstack=True):
         st.image(screenshot2, caption='Credenciales ingresadas en Smarty', use_column_width=True)
 
         # Marcar la casilla del reCAPTCHA (esperar hasta que esté disponible)
-        captcha_checkbox = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div.recaptcha-checkbox-border")))
+        captcha_checkbox = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "recaptcha-checkbox-border")))
         captcha_checkbox.click()
         
         # Captura de pantalla después de seleccionar el reCAPTCHA
         screenshot3 = driver.get_screenshot_as_png()
         st.image(screenshot3, caption='reCAPTCHA seleccionado', use_column_width=True)
 
-        # Esperar un poco más después de hacer clic
+        # Esperar un poco más después de hacer clic (para que Google verifique el reCAPTCHA)
         time.sleep(3)
 
         # Enviar el formulario
@@ -118,7 +118,7 @@ def main():
 
     # Iniciar sesión en Smarty
     if st.button("Iniciar Sesión en Smarty"):
-        driver, screenshot = login_selenium_smart(SMARTY_EMAIL, SMARTY_PASSWORD, use_browserstack=use_browserstack)
+        driver, screenshot = login_selenium_smart(SMARTY_USERNAME, SMARTY_PASSWORD, use_browserstack=use_browserstack)
         if driver:
             st.success("Inicio de sesión exitoso en Smarty.")
             if screenshot:
@@ -127,3 +127,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
