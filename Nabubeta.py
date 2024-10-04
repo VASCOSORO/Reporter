@@ -23,24 +23,23 @@ def login_selenium(email, password):
     """
     try:
         # Configuración de BrowserStack con 'options'
-        capabilities = {
-            'bstack:options': {
-                'os': 'Windows',
-                'osVersion': '10',
-                'buildName': 'Build 1.0',
-                'sessionName': 'EasyBuild Login Test',
-                'userName': BROWSERSTACK_USERNAME,
-                'accessKey': BROWSERSTACK_ACCESS_KEY,
-            },
-            'browserName': 'Chrome',
-            'browserVersion': 'latest',
-        }
+        options = webdriver.ChromeOptions()
+        options.set_capability('bstack:options', {
+            'os': 'Windows',
+            'osVersion': '10',
+            'buildName': 'Build 1.0',
+            'sessionName': 'EasyBuild Login Test',
+            'userName': BROWSERSTACK_USERNAME,
+            'accessKey': BROWSERSTACK_ACCESS_KEY
+        })
+        options.set_capability('browserName', 'Chrome')
+        options.set_capability('browserVersion', 'latest')
 
         # URL de BrowserStack
         browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
 
-        # Conectarse a BrowserStack con capabilities
-        driver = webdriver.Remote(command_executor=browserstack_url, capabilities=capabilities)
+        # Conectarse a BrowserStack con 'options'
+        driver = webdriver.Remote(command_executor=browserstack_url, options=options)
 
         # Navegar a la página de inicio de sesión
         driver.get(LOGIN_URL)
