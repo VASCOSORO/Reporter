@@ -6,7 +6,6 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
-import shutil
 
 # Credenciales
 EMAIL = "SomosMundo"
@@ -21,11 +20,6 @@ def login_selenium(email, password):
     Función para iniciar sesión utilizando Selenium.
     """
     try:
-        # Verificar si el archivo chromedriver existe y eliminarlo para evitar conflictos
-        driver_path = '/home/appuser/.wdm/drivers/chromedriver/linux64/114.0.5735.90/chromedriver'
-        if os.path.exists(driver_path):
-            shutil.rmtree(os.path.dirname(driver_path))
-
         # Configurar el driver de Chrome
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
@@ -33,7 +27,12 @@ def login_selenium(email, password):
         options.add_argument('--disable-dev-shm-usage')  # Evitar problemas de memoria compartida
         options.add_argument('--remote-debugging-port=9222')  # Añadir puerto de depuración remota
         options.add_argument('--disable-gpu')  # Desactivar uso de GPU
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+
+        # Instalar y configurar el driver
+        driver_path = ChromeDriverManager().install()
+        os.chmod(driver_path, 0o755)  # Asegurar permisos de ejecución
+
+        driver = webdriver.Chrome(service=ChromeService(driver_path), options=options)
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
@@ -63,6 +62,7 @@ def login_selenium(email, password):
         st.error(f"Error durante el inicio de sesión con Selenium: {e}")
         return None
 
+
 def main():
     st.set_page_config(page_title="Automatización de Reportes - EasyBuild", layout="wide")
     st.title("Automatización de Reportes - EasyBuild")
@@ -77,6 +77,7 @@ def main():
             st.success("Inicio de sesión exitoso.")
             # En este punto, podemos continuar con la automatización para obtener datos del sitio
             driver.quit()
+
 
 if __name__ == "__main__":
     main()
