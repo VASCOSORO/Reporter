@@ -13,13 +13,18 @@ BROWSERSTACK_USERNAME = 'vascorepo_7EFbsI'
 BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
 
 # Credenciales de EasyBuild
-EMAIL = "SomosMundo"
-PASSWORD = "74108520!Ii"  # Contraseña para EasyBuild
+EASYBUILD_EMAIL = "SomosMundo"
+EASYBUILD_PASSWORD = "74108520!Ii"
 
-# URL del sitio
-LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
+# Credenciales de LeadSales
+LEADSALES_EMAIL = "jsanovsky@gmail.com"
+LEADSALES_PASSWORD = "Pasteur39"
 
-def login_selenium(email, password):
+# URLs de los sitios
+EASYBUILD_LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
+LEADSALES_LOGIN_URL = "https://leadsales.services/login"
+
+def login_selenium(email, password, login_url, email_field_name="username", password_field_name="password"):
     """
     Función para iniciar sesión utilizando Selenium a través de BrowserStack.
     """
@@ -30,7 +35,7 @@ def login_selenium(email, password):
             'os': 'Windows',
             'osVersion': '10',
             'buildName': 'Build 1.0',
-            'sessionName': 'EasyBuild Login Test',
+            'sessionName': 'Login Test',
             'userName': BROWSERSTACK_USERNAME,
             'accessKey': BROWSERSTACK_ACCESS_KEY
         })
@@ -44,14 +49,14 @@ def login_selenium(email, password):
         driver = webdriver.Remote(command_executor=browserstack_url, options=options)
 
         # Navegar a la página de inicio de sesión
-        driver.get(LOGIN_URL)
+        driver.get(login_url)
 
         # Esperar a que la página cargue
         wait = WebDriverWait(driver, 10)
 
         # Encontrar y rellenar los campos de usuario y contraseña
-        username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
-        password_field = wait.until(EC.presence_of_element_located((By.NAME, 'password')))
+        username_field = wait.until(EC.presence_of_element_located((By.NAME, email_field_name)))
+        password_field = wait.until(EC.presence_of_element_located((By.NAME, password_field_name)))
 
         username_field.send_keys(email)
         password_field.send_keys(password)
@@ -61,7 +66,7 @@ def login_selenium(email, password):
 
         # Esperar a que se procese el inicio de sesión y verificar si fue exitoso
         time.sleep(5)
-        if driver.current_url != LOGIN_URL:
+        if driver.current_url != login_url:
             # Tomar la captura de pantalla
             screenshot = driver.get_screenshot_as_png()
 
@@ -81,18 +86,18 @@ def display_screenshot(screenshot):
     st.image(screenshot, caption='Captura de pantalla después del inicio de sesión', use_column_width=True)
 
 def main():
-    st.set_page_config(page_title="Automatización de Reportes - EasyBuild", layout="wide")
-    st.title("Automatización de Reportes - EasyBuild")
+    st.set_page_config(page_title="Automatización de Reportes", layout="wide")
+    st.title("Automatización de Reportes - EasyBuild y LeadSales")
 
     st.write("""
-    Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) utilizando Selenium.
+    Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) y [LeadSales](https://leadsales.services/login) utilizando Selenium.
     """)
 
-    # Primer intento de iniciar sesión
-    if st.button("Iniciar Sesión en EasyBuild - Opción 1"):
-        driver, screenshot = login_selenium(EMAIL, PASSWORD)
+    # Primer intento de iniciar sesión en EasyBuild
+    if st.button("Iniciar Sesión en EasyBuild"):
+        driver, screenshot = login_selenium(EASYBUILD_EMAIL, EASYBUILD_PASSWORD, EASYBUILD_LOGIN_URL)
         if driver:
-            st.success("Inicio de sesión exitoso en Opción 1.")
+            st.success("Inicio de sesión exitoso en EasyBuild.")
             if screenshot:
                 display_screenshot(screenshot)
             driver.quit()
@@ -100,11 +105,11 @@ def main():
     # Línea divisoria gris
     st.markdown("<hr style='border:1px solid gray'>", unsafe_allow_html=True)
 
-    # Segundo intento de iniciar sesión (duplicado)
-    if st.button("Iniciar Sesión en EasyBuild - Opción 2"):
-        driver, screenshot = login_selenium(EMAIL, PASSWORD)
+    # Segundo intento de iniciar sesión en LeadSales
+    if st.button("Iniciar Sesión en LeadSales"):
+        driver, screenshot = login_selenium(LEADSALES_EMAIL, LEADSALES_PASSWORD, LEADSALES_LOGIN_URL, email_field_name="email", password_field_name="password")
         if driver:
-            st.success("Inicio de sesión exitoso en Opción 2.")
+            st.success("Inicio de sesión exitoso en LeadSales.")
             if screenshot:
                 display_screenshot(screenshot)
             driver.quit()
