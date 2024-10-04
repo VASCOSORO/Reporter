@@ -1,5 +1,3 @@
-# ===== version 1.o.1 andando ....
-
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -7,6 +5,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import base64
+from io import BytesIO
 
 # Credenciales de BrowserStack
 BROWSERSTACK_USERNAME = 'vascorepo_7EFbsI'
@@ -62,14 +62,23 @@ def login_selenium(email, password):
         # Esperar a que se procese el inicio de sesión y verificar si fue exitoso
         time.sleep(5)
         if driver.current_url != LOGIN_URL:
-            return driver
+            # Tomar la captura de pantalla
+            screenshot = driver.get_screenshot_as_png()
+
+            return driver, screenshot
         else:
             st.error("Error al iniciar sesión. Verifica tus credenciales.")
             driver.quit()
-            return None
+            return None, None
     except Exception as e:
         st.error(f"Error durante el inicio de sesión con Selenium: {e}")
-        return None
+        return None, None
+
+def display_screenshot(screenshot):
+    """
+    Función para mostrar la captura de pantalla en Streamlit.
+    """
+    st.image(screenshot, caption='Captura de pantalla después del inicio de sesión', use_column_width=True)
 
 def main():
     st.set_page_config(page_title="Automatización de Reportes - EasyBuild", layout="wide")
@@ -80,9 +89,11 @@ def main():
     """)
 
     if st.button("Iniciar Sesión en EasyBuild"):
-        driver = login_selenium(EMAIL, PASSWORD)
+        driver, screenshot = login_selenium(EMAIL, PASSWORD)
         if driver:
             st.success("Inicio de sesión exitoso.")
+            if screenshot:
+                display_screenshot(screenshot)
             driver.quit()
 
 if __name__ == "__main__":
