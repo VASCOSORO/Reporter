@@ -25,6 +25,7 @@ LEADSALES_PASSWORD = "Pasteur39"
 # URLs de los sitios
 LEADSALES_LOGIN_URL = "https://leadsales.services/login"
 LEADSALES_ANALYTICS_URL = "https://leadsales.services/workspace/analytics"  # URL de la página de análisis de Leadsales a visitar después de iniciar sesión
+EASY_SECTION_URL = "https://easy.example.com/some-section"  # URL de la sección de Easy
 
 def login_selenium_leadsales(email, password, use_browserstack=True):
     """
@@ -105,6 +106,33 @@ def login_selenium_leadsales(email, password, use_browserstack=True):
             else:
                 st.write("No se encontraron datos de análisis.")
 
+            # Navegar a la siguiente sección en Easy
+            driver.get(EASY_SECTION_URL)
+            st.write("Navegando a la sección de Easy.")
+
+            # Esperar a que la página cargue
+            wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+
+            # Extraer datos específicos de la sección de Easy
+            easy_data = []
+            try:
+                # Suponiendo que los datos están en elementos con la clase 'easy-card'
+                easy_cards = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'easy-card')))
+                for card in easy_cards:
+                    title = card.find_element(By.CLASS_NAME, 'easy-card-title').text
+                    value = card.find_element(By.CLASS_NAME, 'easy-card-value').text
+                    easy_data.append({"title": title, "value": value})
+            except Exception as e:
+                st.error(f"Error al extraer los datos de Easy: {e}")
+
+            # Mostrar los datos extraídos en Streamlit
+            if easy_data:
+                st.write("Datos de la Sección de Easy:")
+                for data in easy_data:
+                    st.write(f"{data['title']}: {data['value']}")
+            else:
+                st.write("No se encontraron datos en la sección de Easy.")
+
             # Tomar la captura de pantalla
             screenshot = driver.get_screenshot_as_png()
             return driver, screenshot
@@ -143,5 +171,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
