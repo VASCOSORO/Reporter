@@ -1,3 +1,5 @@
+# ====== VERSION 1.o ==========
+# ====== Funcando =============
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
