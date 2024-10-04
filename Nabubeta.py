@@ -7,6 +7,18 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import subprocess
+
+# Instalar dependencias necesarias para ejecutar Chrome en modo headless
+def install_dependencies():
+    try:
+        # Instalar paquetes adicionales necesarios para entornos headless
+        subprocess.run(['apt-get', 'update'], check=True)
+        subprocess.run(['apt-get', 'install', '-y', 'chromium-browser', 'chromium-chromedriver', 'libglib2.0-0', 
+                        'libnss3', 'libgconf-2-4', 'libfontconfig1', 'libxrender1', 'xvfb', 'libxi6', 
+                        'libgdk-pixbuf2.0-0', 'libasound2'], check=True)
+    except Exception as e:
+        st.error(f"Error al instalar dependencias: {e}")
 
 # Credenciales
 EMAIL = "SomosMundo"
@@ -63,6 +75,9 @@ def main():
     st.write("""
     Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) utilizando Selenium.
     """)
+
+    # Instalar las dependencias necesarias
+    install_dependencies()
 
     if st.button("Iniciar Sesión en EasyBuild"):
         driver = login_selenium(EMAIL, PASSWORD)
