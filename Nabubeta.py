@@ -3,10 +3,9 @@
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys  # Esta es la importación que faltaba
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select
 import time
 import pandas as pd
 
@@ -21,6 +20,8 @@ PASSWORD = "74108520!Ii"  # Contraseña para EasyBuild
 # URL del sitio
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
 SALES_URL = "https://app.easybuild.website/admin/e-commerce/sales"
+CARTS_URL = "https://app.easybuild.website/admin/e-commerce/carts"
+PRODUCTS_URL = "https://app.easybuild.website/admin/e-commerce/products"
 
 def extract_sales_data(driver):
     """
@@ -51,9 +52,9 @@ def extract_sales_data(driver):
     df = pd.DataFrame(data, columns=["Orden", "Comprador", "Fecha", "Productos Link", "Total", "Estado", "PDF Link"])
     return df
 
-def login_and_extract_selenium(email, password):
+def login_and_extract_selenium(email, password, target_url):
     """
-    Función para iniciar sesión en EasyBuild, navegar a las ventas y extraer la tabla de datos.
+    Función para iniciar sesión en EasyBuild, navegar a la página seleccionada y extraer datos.
     """
     try:
         # Configuración de BrowserStack con 'options'
@@ -62,7 +63,7 @@ def login_and_extract_selenium(email, password):
             'os': 'Windows',
             'osVersion': '10',
             'buildName': 'Build 1.0',
-            'sessionName': 'EasyBuild Ventas Extractor',
+            'sessionName': 'EasyBuild Extractor',
             'userName': BROWSERSTACK_USERNAME,
             'accessKey': BROWSERSTACK_ACCESS_KEY
         })
@@ -86,15 +87,15 @@ def login_and_extract_selenium(email, password):
         # Ingresar las credenciales
         username_field.send_keys(email)
         password_field.send_keys(password)
-        password_field.send_keys(Keys.RETURN)  # Aquí es donde se usa 'Keys'
+        password_field.send_keys(Keys.RETURN)
 
         # Esperar a que el inicio de sesión sea exitoso
         time.sleep(5)
 
-        # Navegar a la página de ventas
-        driver.get(SALES_URL)
+        # Navegar a la URL seleccionada (Ventas, Productos o Carritos Abandonados)
+        driver.get(target_url)
 
-        # Extraer la tabla de ventas
+        # Extraer la tabla de datos
         sales_data = extract_sales_data(driver)
 
         return sales_data
@@ -104,11 +105,18 @@ def login_and_extract_selenium(email, password):
         return None
 
 def main():
-    st.set_page_config(page_title="Automatización de Ventas - EasyBuild", layout="wide")
-    st.title("Automatización de Ventas - EasyBuild")
+    st.set_page_config(page_title="Automatización de EasyBuild", layout="wide")
+    st.title("Automatización de EasyBuild")
 
-    if st.button("Iniciar Sesión y Extraer Ventas"):
-        sales_data = login_and_extract_selenium(EMAIL, PASSWORD)
+    # Selección de la página a la que navegar
+    opcion = st.selectbox("Selecciona la página a la que deseas navegar:", 
+                          ["Gestor de Ventas", "Carritos Abandonados", "Productos"])
+
+    # Mapeo de la opción seleccionada a la URL correspondiente
+    target_url = SALES_URL if opcion == "Gestor de Ventas" else CARTS_URL if opcion == "Carritos Abandonados" else PRODUCTS_URL
+
+    if st.button("Iniciar Sesión y Extraer Datos"):
+        sales_data = login_and_extract_selenium(EMAIL, PASSWORD, target_url)
         if sales_data is not None:
             st.success("Datos extraídos exitosamente.")
             st.dataframe(sales_data)
