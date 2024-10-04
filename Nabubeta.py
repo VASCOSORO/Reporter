@@ -1,6 +1,7 @@
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys  # Esta es la importación que faltaba
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
@@ -83,7 +84,7 @@ def login_and_extract_selenium(email, password):
         # Ingresar las credenciales
         username_field.send_keys(email)
         password_field.send_keys(password)
-        password_field.send_keys(Keys.RETURN)
+        password_field.send_keys(Keys.RETURN)  # Aquí es donde se usa 'Keys'
 
         # Esperar a que el inicio de sesión sea exitoso
         time.sleep(5)
