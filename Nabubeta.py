@@ -7,12 +7,12 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 # Credenciales de BrowserStack
-BROWSERSTACK_USERNAME = 'tu_usuario'
-BROWSERSTACK_ACCESS_KEY = 'tu_clave_de_acceso'
+BROWSERSTACK_USERNAME = 'vascorepo_7EFbsI'
+BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
 
 # Credenciales de EasyBuild
 EMAIL = "SomosMundo"
-PASSWORD = "741085207410P!i"
+PASSWORD = "741085207410P!i"  # Contraseña para EasyBuild
 
 # URL del sitio
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
@@ -23,20 +23,24 @@ def login_selenium(email, password):
     """
     try:
         # Configuración de BrowserStack
-        desired_cap = {
-            'browser': 'Chrome',
-            'browser_version': 'latest',
-            'os': 'Windows',
-            'os_version': '10',
-            'name': 'EasyBuild Login Test',
-            'build': 'Build 1.0'
+        capabilities = {
+            'bstack:options': {
+                'os': 'Windows',
+                'osVersion': '10',
+                'buildName': 'Build 1.0',
+                'sessionName': 'EasyBuild Login Test',
+                'userName': BROWSERSTACK_USERNAME,
+                'accessKey': BROWSERSTACK_ACCESS_KEY,
+            },
+            'browserName': 'Chrome',
+            'browserVersion': 'latest'
         }
 
         # URL de BrowserStack
         browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
 
         # Conectarse a BrowserStack
-        driver = webdriver.Remote(command_executor=browserstack_url, desired_capabilities=desired_cap)
+        driver = webdriver.Remote(command_executor=browserstack_url, desired_capabilities=capabilities)
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
