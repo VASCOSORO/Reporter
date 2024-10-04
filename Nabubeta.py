@@ -18,37 +18,9 @@ PASSWORD = "74108520!Ii"  # Contraseña para EasyBuild
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
 SALES_URL = "https://app.easybuild.website/admin/e-commerce/sales"
 
-def extract_sales_data(driver):
+def login_and_navigate_selenium(email, password, target_url):
     """
-    Función para extraer datos de la tabla de ventas en EasyBuild.
-    """
-    time.sleep(10)  # Asegura que la tabla esté completamente cargada
-    table = driver.find_element(By.TAG_NAME, "table")
-    
-    # Extraer los datos de la tabla de ventas
-    rows = table.find_elements(By.TAG_NAME, "tr")
-    data = []
-
-    for row in rows[1:]:  # Ignorar la cabecera
-        cols = row.find_elements(By.TAG_NAME, "td")
-        order = cols[0].text
-        buyer = cols[1].text
-        date = cols[2].text
-        products_link = cols[3].find_element(By.TAG_NAME, "a").get_attribute("href")
-        total = cols[4].text
-        status = cols[5].text
-        pdf_link = cols[6].find_element(By.TAG_NAME, "a").get_attribute("href")
-        
-        # Almacenar los datos en una lista
-        data.append([order, buyer, date, products_link, total, status, pdf_link])
-
-    # Convertir a DataFrame para visualizar en Streamlit
-    df = pd.DataFrame(data, columns=["Orden", "Comprador", "Fecha", "Productos Link", "Total", "Estado", "PDF Link"])
-    return df
-
-def login_and_extract_selenium(email, password, target_url):
-    """
-    Función para iniciar sesión en EasyBuild, navegar a las ventas y extraer la tabla de datos.
+    Función para iniciar sesión en EasyBuild y navegar a la página seleccionada.
     """
     try:
         # Configuración del driver local
@@ -58,9 +30,9 @@ def login_and_extract_selenium(email, password, target_url):
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
-        time.sleep(5)
-        username_field = driver.find_element(By.NAME, 'username')
-        password_field = driver.find_element(By.NAME, 'password')
+        wait = WebDriverWait(driver, 10)
+        username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
+        password_field = wait.until(EC.presence_of_element_located((By.NAME, 'password')))
 
         # Ingresar las credenciales
         username_field.send_keys(email)
@@ -70,28 +42,60 @@ def login_and_extract_selenium(email, password, target_url):
         # Esperar a que el inicio de sesión sea exitoso
         time.sleep(5)
 
-        # Navegar a la página de ventas
+        # Navegar a la URL seleccionada (Ventas)
         driver.get(target_url)
 
-        # Extraer la tabla de ventas
-        sales_data = extract_sales_data(driver)
+        # Esperar a que la página cargue completamente
+        time.sleep(5)
 
-        return sales_data
+        # Devolver el driver para interactuar con él después
+        return driver
 
     except Exception as e:
-        st.error(f"Error durante el inicio de sesión o la extracción de datos: {e}")
+        st.error(f"Error durante el inicio de sesión o la navegación: {e}")
+        return None
+
+def analyze_clickable_elements(driver):
+    """
+    Función para analizar los elementos clickeables dentro de la página (links, botones).
+    """
+    try:
+        # Obtener todos los enlaces clickeables
+        clickable_elements = driver.find_elements(By.TAG_NAME, 'a')
+        clickable_data = []
+
+        for element in clickable_elements:
+            href = element.get_attribute('href')
+            text = element.text
+            clickable_data.append({'Texto': text, 'Enlace': href})
+
+        # Convertir los datos a un DataFrame para mostrar en Streamlit
+        df = pd.DataFrame(clickable_data)
+        return df
+
+    except Exception as e:
+        st.error(f"Error al analizar los elementos clickeables: {e}")
         return None
 
 def main():
     st.set_page_config(page_title="Automatización de EasyBuild", layout="wide")
-    st.title("Automatización de EasyBuild")
+    st.title("Automatización de EasyBuild - Análisis de elementos clickeables")
 
-    if st.button("Iniciar Sesión y Extraer Ventas"):
-        sales_data = login_and_extract_selenium(EMAIL, PASSWORD, SALES_URL)
-        if sales_data is not None:
-            st.success("Datos extraídos exitosamente.")
-            st.dataframe(sales_data)
+    if st.button("Iniciar Sesión y Analizar Página de Ventas"):
+        # Iniciar sesión y navegar a la página de ventas
+        driver = login_and_navigate_selenium(EMAIL, PASSWORD, SALES_URL)
+        
+        if driver:
+            st.success("Sesión iniciada y en la página de ventas.")
+            
+            # Analizar los elementos clickeables en la página de ventas
+            clickable_elements = analyze_clickable_elements(driver)
+            
+            if clickable_elements is not None:
+                st.success("Elementos clickeables extraídos.")
+                st.dataframe(clickable_elements)  # Mostrar los elementos en un DataFrame
+                
+            driver.quit()  # Cerrar el navegador
 
 if __name__ == "__main__":
     main()
-
