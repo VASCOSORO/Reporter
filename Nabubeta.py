@@ -71,7 +71,7 @@ def login_selenium_smart(username, password, use_browserstack=True):
         screenshot2 = driver.get_screenshot_as_png()
         st.image(screenshot2, caption='Credenciales ingresadas en Smarty', use_column_width=True)
 
-        # Marcar la casilla del reCAPTCHA (esperar hasta que esté disponible)
+        # Intentar hacer clic en el captcha (reCAPTCHA)
         captcha_checkbox = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "recaptcha-checkbox-border")))
         captcha_checkbox.click()
         
@@ -80,9 +80,17 @@ def login_selenium_smart(username, password, use_browserstack=True):
         st.image(screenshot3, caption='reCAPTCHA seleccionado', use_column_width=True)
 
         # Esperar un poco más después de hacer clic (para que Google verifique el reCAPTCHA)
-        time.sleep(3)
+        time.sleep(5)
 
-        # Hacer clic en el botón de ingresar
+        # Comprobar si el captcha ha sido completado
+        captcha_completed = driver.execute_script("return grecaptcha.getResponse().length != 0")
+        
+        if not captcha_completed:
+            st.error("reCAPTCHA no completado. Espera a que se complete manualmente y luego vuelve a intentar.")
+            driver.quit()
+            return None, None
+
+        # Hacer clic en el botón de ingresar solo si el captcha fue completado
         login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
         login_button.click()
 
@@ -127,5 +135,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
