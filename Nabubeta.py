@@ -2,33 +2,29 @@ import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
 # Credenciales
 EMAIL = "SomosMundo"
-PASSWORD = "74108520!Ii"
+PASSWORD = "741085207410P!i"
 
 # URL del sitio
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
 
 def login_selenium(email, password):
     """
-    Función para iniciar sesión utilizando Selenium en modo headless.
+    Función para iniciar sesión utilizando Selenium con Firefox.
     """
     try:
-        # Configurar el driver de Chrome
-        options = webdriver.ChromeOptions()
+        # Configurar el driver de Firefox
+        options = webdriver.FirefoxOptions()
         options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
-        options.add_argument('--no-sandbox')  # Añadir no-sandbox para evitar problemas de permisos
-        options.add_argument('--disable-dev-shm-usage')  # Evitar problemas de memoria compartida
-        options.add_argument('--remote-debugging-port=9222')  # Para ejecutar Chrome en algunos entornos
-
-        # Descargar e iniciar el ChromeDriver usando webdriver_manager
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+        
+        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
@@ -68,7 +64,6 @@ def main():
         driver = login_selenium(EMAIL, PASSWORD)
         if driver:
             st.success("Inicio de sesión exitoso.")
-            # En este punto, podemos continuar con la automatización para obtener datos del sitio
             driver.quit()
 
 if __name__ == "__main__":
