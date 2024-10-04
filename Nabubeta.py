@@ -3,7 +3,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service as ChromeService
-# from webdriver_manager.core.utils import ChromeType
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
@@ -27,13 +26,12 @@ def login_selenium(email, password):
         options.add_argument('--no-sandbox')  # Añadir no-sandbox para evitar problemas de permisos
         options.add_argument('--disable-dev-shm-usage')  # Evitar problemas de memoria compartida
         options.add_argument('--remote-debugging-port=9222')  # Añadir puerto de depuración remota
-        options.add_argument('--single-process')  # Ejecutar en un solo proceso
         options.add_argument('--disable-gpu')  # Desactivar uso de GPU
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
-        time.sleep(3)
+        time.sleep(10)
 
         # Encontrar y rellenar los campos de usuario y contraseña
         username_field = driver.find_element(By.NAME, 'username')
@@ -46,7 +44,7 @@ def login_selenium(email, password):
         password_field.send_keys(Keys.RETURN)
 
         # Esperar a que se procese el inicio de sesión
-        time.sleep(5)
+        time.sleep(10)
 
         # Verificar si el inicio de sesión fue exitoso
         if driver.current_url != LOGIN_URL:
