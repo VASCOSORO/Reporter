@@ -57,10 +57,6 @@ def login_selenium_smart(username, password, use_browserstack=True):
         # Esperar a que la página cargue
         wait = WebDriverWait(driver, 15)
 
-        # Captura de pantalla después de cargar la página
-        screenshot1 = driver.get_screenshot_as_png()
-        st.image(screenshot1, caption='Página de inicio de sesión de Smarty cargada', use_column_width=True)
-
         # Encontrar y rellenar los campos de usuario y contraseña
         username_field = wait.until(EC.presence_of_element_located((By.NAME, 'data[User][username]')))
         password_field = wait.until(EC.presence_of_element_located((By.NAME, 'data[User][password]')))
@@ -68,38 +64,30 @@ def login_selenium_smart(username, password, use_browserstack=True):
         username_field.send_keys(username)
         password_field.send_keys(password)
 
-        # Captura de pantalla después de ingresar credenciales
-        screenshot2 = driver.get_screenshot_as_png()
-        st.image(screenshot2, caption='Credenciales ingresadas en Smarty', use_column_width=True)
+        # Mostrar una instrucción en Streamlit
+        st.warning("Por favor, completa el CAPTCHA manualmente en el navegador y luego presiona continuar en Streamlit.")
 
-        # Instruir al usuario para completar el CAPTCHA manualmente
-        st.warning("Por favor, completa el CAPTCHA manualmente en el navegador y luego presiona continuar.")
+        # Pausar el script esperando que el usuario presione el botón "Continuar" en Streamlit
+        if st.button("Continuar"):
+            # Después de que el usuario complete el CAPTCHA manualmente y presione continuar
+            login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
+            login_button.click()
 
-        # Esperar que el usuario resuelva el CAPTCHA manualmente
-        st.button("Continuar")
+            # Esperar un poco para que procese el inicio de sesión
+            time.sleep(5)
 
-        # Hacer clic en el botón "Ingresar"
-        login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
-        login_button.click()
+            # Captura de pantalla después de intentar iniciar sesión
+            screenshot = driver.get_screenshot_as_png()
+            st.image(screenshot, caption='Después de hacer clic en Ingresar en Smarty', use_column_width=True)
 
-        # Captura de pantalla después de intentar iniciar sesión
-        screenshot3 = driver.get_screenshot_as_png()
-        st.image(screenshot3, caption='Después de hacer clic en Ingresar en Smarty', use_column_width=True)
-
-        # Esperar un poco para que procese el inicio de sesión
-        time.sleep(5)
-
-        # Verificar si el inicio de sesión fue exitoso
-        if driver.current_url != SMARTY_LOGIN_URL:
-            st.success("Inicio de sesión exitoso en Smarty.")
-            return driver, screenshot3
-        else:
-            st.error("Error al iniciar sesión en Smarty. Verifica tus credenciales o el reCAPTCHA.")
+            # Verificar si el inicio de sesión fue exitoso
+            if driver.current_url != SMARTY_LOGIN_URL:
+                st.success("Inicio de sesión exitoso en Smarty.")
+            else:
+                st.error("Error al iniciar sesión en Smarty. Verifica tus credenciales o el reCAPTCHA.")
             driver.quit()
-            return None, None
     except Exception as e:
         st.error(f"Error durante el inicio de sesión en Smarty: {e}")
-        return None, None
 
 def main():
     st.set_page_config(page_title="Automatización de Reportes", layout="wide")
@@ -114,12 +102,7 @@ def main():
 
     # Iniciar sesión en Smarty
     if st.button("Iniciar Sesión en Smarty"):
-        driver, screenshot = login_selenium_smart(SMARTY_USERNAME, SMARTY_PASSWORD, use_browserstack=use_browserstack)
-        if driver:
-            st.success("Inicio de sesión exitoso en Smarty.")
-            if screenshot:
-                display_screenshot(screenshot)
-            driver.quit()
+        login_selenium_smart(SMARTY_USERNAME, SMARTY_PASSWORD, use_browserstack=use_browserstack)
 
 if __name__ == "__main__":
     main()
