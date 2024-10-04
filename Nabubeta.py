@@ -15,21 +15,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 BROWSERSTACK_USERNAME = 'vascorepo_7EFbsI'
 BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
 
-# Credenciales de EasyBuild
-EASYBUILD_EMAIL = "SomosMundo"
-EASYBUILD_PASSWORD = "74108520!Ii"
-
-# Credenciales de LeadSales
-LEADSALES_EMAIL = "jsanovsky@gmail.com"
-LEADSALES_PASSWORD = "Pasteur39"
-
 # Credenciales de Smarty
 SMARTY_EMAIL = "Soop"
 SMARTY_PASSWORD = "74108520"
 
-# URLs de los sitios
-EASYBUILD_LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
-LEADSALES_LOGIN_URL = "https://leadsales.services/login"
+# URL de Smarty
 SMARTY_LOGIN_URL = "https://smartycart.com.ar/users/login"
 
 def login_selenium_smart(email, password, use_browserstack=True):
@@ -64,7 +54,7 @@ def login_selenium_smart(email, password, use_browserstack=True):
         driver.get(SMARTY_LOGIN_URL)
 
         # Esperar a que la página cargue
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 15)
 
         # Encontrar y rellenar los campos de usuario y contraseña
         username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
@@ -73,12 +63,15 @@ def login_selenium_smart(email, password, use_browserstack=True):
         username_field.send_keys(email)
         password_field.send_keys(password)
 
-        # Marcar la casilla del reCAPTCHA (simulación de espera)
-        captcha_checkbox = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "recaptcha-checkbox-border")))
+        # Simular espera para que se cargue completamente la página del reCAPTCHA
+        time.sleep(5)
+
+        # Marcar la casilla del reCAPTCHA (esperar hasta que esté disponible)
+        captcha_checkbox = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div.recaptcha-checkbox-border")))
         captcha_checkbox.click()
         
-        # Esperar un segundo antes de continuar
-        time.sleep(2)
+        # Esperar un poco más después de hacer clic
+        time.sleep(3)
 
         # Enviar el formulario
         login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
@@ -109,39 +102,14 @@ def display_screenshot(screenshot):
 
 def main():
     st.set_page_config(page_title="Automatización de Reportes", layout="wide")
-    st.title("Automatización de Reportes - EasyBuild, LeadSales y Smarty")
+    st.title("Automatización de Reportes - Smarty")
 
     st.write("""
-    Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login), 
-    [LeadSales](https://leadsales.services/login) y [Smarty](https://smartycart.com.ar/users/login) utilizando Selenium.
+    Este aplicativo permite iniciar sesión en [Smarty](https://smartycart.com.ar/users/login) utilizando Selenium.
     """)
 
     # Seleccionar si usar BrowserStack o un controlador local
     use_browserstack = st.checkbox("Usar BrowserStack", value=True)
-
-    # Iniciar sesión en EasyBuild
-    if st.button("Iniciar Sesión en EasyBuild"):
-        driver, screenshot = login_selenium_easybuild(EASYBUILD_EMAIL, EASYBUILD_PASSWORD, EASYBUILD_LOGIN_URL, use_browserstack=use_browserstack)
-        if driver:
-            st.success("Inicio de sesión exitoso en EasyBuild.")
-            if screenshot:
-                display_screenshot(screenshot)
-            driver.quit()
-
-    # Línea divisoria gris
-    st.markdown("<hr style='border:1px solid gray'>", unsafe_allow_html=True)
-
-    # Iniciar sesión en LeadSales
-    if st.button("Iniciar Sesión en LeadSales"):
-        driver, screenshot = login_selenium_leadsales(LEADSALES_EMAIL, LEADSALES_PASSWORD, use_browserstack=use_browserstack)
-        if driver:
-            st.success("Inicio de sesión exitoso en LeadSales.")
-            if screenshot:
-                display_screenshot(screenshot)
-            driver.quit()
-
-    # Línea divisoria gris
-    st.markdown("<hr style='border:1px solid gray'>", unsafe_allow_html=True)
 
     # Iniciar sesión en Smarty
     if st.button("Iniciar Sesión en Smarty"):
@@ -154,4 +122,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
