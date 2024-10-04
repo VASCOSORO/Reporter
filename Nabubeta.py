@@ -1,3 +1,7 @@
+# ===========================
+# ======= DALEEEE DALEEEE =====
+# ====== paso el lead ========
+
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -93,7 +97,7 @@ def login_selenium_leadsales(email, password, use_browserstack=True):
 
 def main():
     st.set_page_config(page_title="Automatización LeadSales", layout="wide")
-    st.title("Automatización de Login - LeadSales")
+    st.title("Automatizar Login al Lead Toma Puto")
 
     st.write("""
     Este aplicativo permite iniciar sesión en [LeadSales](https://leadsales.services/login) utilizando Selenium y ver capturas de pantalla paso a paso.
