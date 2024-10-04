@@ -39,7 +39,7 @@ def login_selenium(email, password):
         # URL de BrowserStack
         browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
 
-        # Conectarse a BrowserStack
+        # Conectarse a BrowserStack con capabilities
         driver = webdriver.Remote(command_executor=browserstack_url, desired_capabilities=capabilities)
         driver.get(LOGIN_URL)
 
