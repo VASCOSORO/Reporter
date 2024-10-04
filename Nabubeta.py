@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
+import shutil
 
 # Credenciales
 EMAIL = "SomosMundo"
@@ -20,6 +21,11 @@ def login_selenium(email, password):
     Función para iniciar sesión utilizando Selenium.
     """
     try:
+        # Verificar si el archivo chromedriver existe y eliminarlo para evitar conflictos
+        driver_path = '/home/appuser/.wdm/drivers/chromedriver/linux64/114.0.5735.90/chromedriver'
+        if os.path.exists(driver_path):
+            shutil.rmtree(os.path.dirname(driver_path))
+
         # Configurar el driver de Chrome
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
