@@ -22,7 +22,7 @@ def login_selenium(email, password):
     try:
         # Configurar el driver de Chrome
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
+        options.add_argument('--headless=new')  # Ejecutar en modo headless (sin interfaz)
         options.add_argument('--no-sandbox')  # Añadir no-sandbox para evitar problemas de permisos
         options.add_argument('--disable-dev-shm-usage')  # Evitar problemas de memoria compartida
         options.add_argument('--remote-debugging-port=9222')  # Añadir puerto de depuración remota
