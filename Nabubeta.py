@@ -5,6 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+import os
 
 # Credenciales
 EMAIL = "SomosMundo"
@@ -22,6 +23,8 @@ def login_selenium(email, password):
         # Configurar el driver de Chrome
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
+        options.add_argument('--no-sandbox')  # Añadir no-sandbox para evitar problemas de permisos
+        options.add_argument('--disable-dev-shm-usage')  # Evitar problemas de memoria compartida
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
         driver.get(LOGIN_URL)
 
