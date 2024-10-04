@@ -82,16 +82,16 @@ def login_selenium_smart(username, password, use_browserstack=True):
         # Esperar un poco más después de hacer clic (para que Google verifique el reCAPTCHA)
         time.sleep(3)
 
-        # Enviar el formulario
+        # Hacer clic en el botón de ingresar
         login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
         login_button.click()
 
-        # Esperar un poco para que procese el inicio de sesión
-        time.sleep(5)
-
         # Captura de pantalla después de intentar iniciar sesión
         screenshot4 = driver.get_screenshot_as_png()
-        st.image(screenshot4, caption='Después de intentar iniciar sesión en Smarty', use_column_width=True)
+        st.image(screenshot4, caption='Después de hacer clic en Ingresar en Smarty', use_column_width=True)
+
+        # Esperar un poco para que procese el inicio de sesión
+        time.sleep(5)
 
         # Verificar si el inicio de sesión fue exitoso
         if driver.current_url != SMARTY_LOGIN_URL:
