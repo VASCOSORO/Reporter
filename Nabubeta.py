@@ -24,7 +24,8 @@ SMARTY_LOGIN_URL = "https://smartycart.com.ar/users/login"
 
 def login_selenium_smart(username, password, use_browserstack=True):
     """
-    Función para iniciar sesión en Smarty usando BrowserStack y ejecutar todo el proceso.
+    Función para iniciar sesión en Smarty usando BrowserStack.
+    Dejará que el usuario resuelva el reCAPTCHA manualmente y continuará después.
     """
     try:
         if use_browserstack:
@@ -71,12 +72,11 @@ def login_selenium_smart(username, password, use_browserstack=True):
         screenshot2 = driver.get_screenshot_as_png()
         st.image(screenshot2, caption='Credenciales ingresadas en Smarty', use_column_width=True)
 
-        # Intentar resolver el reCAPTCHA
-        recaptcha_checkbox = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'recaptcha-checkbox')))
-        recaptcha_checkbox.click()
+        # Instruir al usuario para completar el CAPTCHA manualmente
+        st.warning("Por favor, completa el CAPTCHA manualmente en el navegador y luego presiona continuar.")
 
-        # Esperar unos segundos para asegurarse de que el CAPTCHA se complete
-        time.sleep(3)
+        # Esperar que el usuario resuelva el CAPTCHA manualmente
+        st.button("Continuar")
 
         # Hacer clic en el botón "Ingresar"
         login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
@@ -123,5 +123,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
