@@ -11,10 +11,6 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from webdriver_manager.chrome import ChromeDriverManager
 
-# Credenciales de BrowserStack
-BROWSERSTACK_USERNAME = 'vascorepo_7EFbsI'
-BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
-
 # Credenciales de Smarty
 SMARTY_USERNAME = "Soop"
 SMARTY_PASSWORD = "74108520"
@@ -22,34 +18,14 @@ SMARTY_PASSWORD = "74108520"
 # URL de Smarty
 SMARTY_LOGIN_URL = "https://smartycart.com.ar/users/login"
 
-def login_selenium_smart(username, password, use_browserstack=True):
+def login_selenium_smart_local(username, password):
     """
-    Función para iniciar sesión en Smarty usando BrowserStack.
+    Función para iniciar sesión en Smarty usando un navegador local.
     Dejará que el usuario resuelva el reCAPTCHA manualmente y continuará después.
     """
     try:
-        if use_browserstack:
-            # Configuración de BrowserStack con 'options'
-            options = webdriver.ChromeOptions()
-            options.set_capability('bstack:options', {
-                'os': 'Windows',
-                'osVersion': '10',
-                'buildName': 'Build Smarty',
-                'sessionName': 'Smarty Login Test',
-                'userName': BROWSERSTACK_USERNAME,
-                'accessKey': BROWSERSTACK_ACCESS_KEY
-            })
-            options.set_capability('browserName', 'Chrome')
-            options.set_capability('browserVersion', 'latest')
-
-            # URL de BrowserStack
-            browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
-
-            # Conectarse a BrowserStack con 'options'
-            driver = webdriver.Remote(command_executor=browserstack_url, options=options)
-        else:
-            # Usar controlador local (ChromeDriver)
-            driver = webdriver.Chrome(ChromeDriverManager().install())
+        # Usar controlador local (ChromeDriver)
+        driver = webdriver.Chrome(ChromeDriverManager().install())
 
         # Navegar a la página de Smarty
         driver.get(SMARTY_LOGIN_URL)
@@ -97,12 +73,10 @@ def main():
     Este aplicativo permite iniciar sesión en [Smarty](https://smartycart.com.ar/users/login) utilizando Selenium.
     """)
 
-    # Seleccionar si usar BrowserStack o un controlador local
-    use_browserstack = st.checkbox("Usar BrowserStack", value=True)
-
-    # Iniciar sesión en Smarty
+    # Iniciar sesión en Smarty usando el navegador local
     if st.button("Iniciar Sesión en Smarty"):
-        login_selenium_smart(SMARTY_USERNAME, SMARTY_PASSWORD, use_browserstack=use_browserstack)
+        login_selenium_smart_local(SMARTY_USERNAME, SMARTY_PASSWORD)
 
 if __name__ == "__main__":
     main()
+
