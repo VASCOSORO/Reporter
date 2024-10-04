@@ -7,6 +7,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
 import logging
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -42,14 +44,13 @@ def login_selenium(email, password):
         driver.get(LOGIN_URL)
 
         logging.info("Esperando a que la página cargue.")
-        # Esperar a que la página cargue
-        time.sleep(10)  # Considera usar WebDriverWait para una espera más robusta
+        # Usar WebDriverWait en lugar de time.sleep para una espera más robusta
+        wait = WebDriverWait(driver, 20)
+        username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
+        password_field = wait.until(EC.presence_of_element_located((By.NAME, 'password')))
 
-        logging.info("Localizando campos de usuario y contraseña.")
-        # Encontrar y rellenar los campos de usuario y contraseña
-        username_field = driver.find_element(By.NAME, 'username')
-        password_field = driver.find_element(By.NAME, 'password')
-
+        logging.info("Rellenando campos de usuario y contraseña.")
+        # Rellenar los campos de usuario y contraseña
         username_field.send_keys(email)
         password_field.send_keys(password)
 
@@ -58,8 +59,8 @@ def login_selenium(email, password):
         password_field.send_keys(Keys.RETURN)
 
         logging.info("Esperando a que se procese el inicio de sesión.")
-        # Esperar a que se procese el inicio de sesión
-        time.sleep(10)  # Considera usar WebDriverWait para una espera más robusta
+        # Esperar a que la URL cambie indicando inicio de sesión exitoso
+        wait.until(EC.url_changes(LOGIN_URL))
 
         logging.info("Verificando si el inicio de sesión fue exitoso.")
         # Verificar si el inicio de sesión fue exitoso
