@@ -2,11 +2,9 @@ import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
-import shutil
 
 # URL del sitio de inicio de sesión
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
@@ -16,16 +14,14 @@ def login_selenium(email, password):
     Función para iniciar sesión utilizando Selenium.
     """
     try:
-        # Configurar opciones de Chrome
+        # Configurar el driver de Chrome
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
-        options.add_argument('--no-sandbox')  # Evitar problemas de permisos
-        options.add_argument('--disable-dev-shm-usage')  # Evitar problemas de memoria compartida
-        options.add_argument('--disable-gpu')  # Desactivar uso de GPU
-        options.add_argument('--window-size=1920,1080')  # Definir tamaño de ventana
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
 
         # Instalar y configurar el driver
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+        driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
