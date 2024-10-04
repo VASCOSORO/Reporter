@@ -3,13 +3,14 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.core.utils import ChromeType
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
 
 # Credenciales
 EMAIL = "SomosMundo"
-PASSWORD = "741085207410P!i"
+PASSWORD = "74108520!Ii"
 
 # URL del sitio
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
@@ -28,7 +29,7 @@ def login_selenium(email, password):
         options.add_argument('--remote-debugging-port=9222')  # Añadir puerto de depuración remota
         options.add_argument('--single-process')  # Ejecutar en un solo proceso
         options.add_argument('--disable-gpu')  # Desactivar uso de GPU
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()), options=options)
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
