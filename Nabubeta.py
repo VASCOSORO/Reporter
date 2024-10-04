@@ -168,7 +168,7 @@ def display_screenshot(screenshot):
 
 def main():
     st.set_page_config(page_title="Automatización de Reportes", layout="wide")
-    st.title("Automatización de Reportes - EasyBuild y LeadSales")
+    st.title("Automatización de Reportes con Ingreso")
 
     st.write("""
     Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) y [LeadSales](https://leadsales.services/login) utilizando Selenium.
