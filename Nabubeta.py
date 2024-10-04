@@ -11,21 +11,16 @@ from webdriver_manager.chrome import ChromeDriverManager
 BROWSERSTACK_USERNAME = 'vascorepo_7EFbsI'
 BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
 
-# Credenciales de EasyBuild
-EASYBUILD_EMAIL = "SomosMundo"
-EASYBUILD_PASSWORD = "74108520!Ii"
-
 # Credenciales de LeadSales
 LEADSALES_EMAIL = "jsanovsky@gmail.com"
 LEADSALES_PASSWORD = "Pasteur39"
 
-# URLs de los sitios
-EASYBUILD_LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
+# URL de LeadSales
 LEADSALES_LOGIN_URL = "https://leadsales.services/login"
 
-def login_selenium(email, password, login_url, email_field_name="username", password_field_name="password", use_browserstack=True):
+def login_selenium_leadsales(email, password, use_browserstack=True):
     """
-    Función para iniciar sesión utilizando Selenium, con opción para usar BrowserStack o un controlador local.
+    Función para iniciar sesión en LeadSales con pasos de depuración y capturas de pantalla.
     """
     try:
         if use_browserstack:
@@ -34,8 +29,8 @@ def login_selenium(email, password, login_url, email_field_name="username", pass
             options.set_capability('bstack:options', {
                 'os': 'Windows',
                 'osVersion': '10',
-                'buildName': 'Build 1.0',
-                'sessionName': 'Login Test',
+                'buildName': 'Build LeadSales',
+                'sessionName': 'LeadSales Login Test',
                 'userName': BROWSERSTACK_USERNAME,
                 'accessKey': BROWSERSTACK_ACCESS_KEY
             })
@@ -51,73 +46,66 @@ def login_selenium(email, password, login_url, email_field_name="username", pass
             # Usar controlador local (ChromeDriver)
             driver = webdriver.Chrome(ChromeDriverManager().install())
 
-        # Navegar a la página de inicio de sesión
-        driver.get(login_url)
+        # Navegar a la página de LeadSales
+        driver.get(LEADSALES_LOGIN_URL)
+        st.write("Página de LeadSales cargada.")
 
         # Esperar a que la página cargue
         wait = WebDriverWait(driver, 10)
 
+        # Captura de pantalla después de cargar la página
+        screenshot1 = driver.get_screenshot_as_png()
+        st.image(screenshot1, caption='Página de LeadSales cargada', use_column_width=True)
+
         # Encontrar y rellenar los campos de usuario y contraseña
-        username_field = wait.until(EC.presence_of_element_located((By.NAME, email_field_name)))
-        password_field = wait.until(EC.presence_of_element_located((By.NAME, password_field_name)))
+        username_field = wait.until(EC.presence_of_element_located((By.NAME, 'email')))
+        password_field = wait.until(EC.presence_of_element_located((By.NAME, 'Password')))
 
         username_field.send_keys(email)
         password_field.send_keys(password)
+        st.write("Credenciales ingresadas.")
+
+        # Captura de pantalla después de ingresar credenciales
+        screenshot2 = driver.get_screenshot_as_png()
+        st.image(screenshot2, caption='Credenciales ingresadas', use_column_width=True)
 
         # Enviar el formulario
         password_field.send_keys(Keys.RETURN)
 
-        # Esperar a que se procese el inicio de sesión y verificar si fue exitoso
+        # Esperar un poco para que procese el inicio de sesión
         time.sleep(5)
-        if driver.current_url != login_url:
-            # Tomar la captura de pantalla
-            screenshot = driver.get_screenshot_as_png()
 
-            return driver, screenshot
+        # Captura de pantalla después de intentar iniciar sesión
+        screenshot3 = driver.get_screenshot_as_png()
+        st.image(screenshot3, caption='Después de intentar iniciar sesión', use_column_width=True)
+
+        # Verificar si el inicio de sesión fue exitoso
+        if driver.current_url != LEADSALES_LOGIN_URL:
+            st.success("Inicio de sesión exitoso en LeadSales.")
+            return driver, screenshot3
         else:
-            st.error("Error al iniciar sesión. Verifica tus credenciales.")
+            st.error("Error al iniciar sesión en LeadSales. Verifica tus credenciales.")
             driver.quit()
             return None, None
     except Exception as e:
-        st.error(f"Error durante el inicio de sesión con Selenium: {e}")
+        st.error(f"Error durante el inicio de sesión en LeadSales: {e}")
         return None, None
 
-def display_screenshot(screenshot):
-    """
-    Función para mostrar la captura de pantalla en Streamlit.
-    """
-    st.image(screenshot, caption='Captura de pantalla después del inicio de sesión', use_column_width=True)
-
 def main():
-    st.set_page_config(page_title="Automatización de Reportes", layout="wide")
-    st.title("Automatización de Reportes - EasyBuild y LeadSales")
+    st.set_page_config(page_title="Automatización LeadSales", layout="wide")
+    st.title("Automatización de Login - LeadSales")
 
     st.write("""
-    Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) y [LeadSales](https://leadsales.services/login) utilizando Selenium.
+    Este aplicativo permite iniciar sesión en [LeadSales](https://leadsales.services/login) utilizando Selenium y ver capturas de pantalla paso a paso.
     """)
 
     # Seleccionar si usar BrowserStack o un controlador local
     use_browserstack = st.checkbox("Usar BrowserStack", value=True)
 
-    # Primer intento de iniciar sesión en EasyBuild
-    if st.button("Iniciar Sesión en EasyBuild"):
-        driver, screenshot = login_selenium(EASYBUILD_EMAIL, EASYBUILD_PASSWORD, EASYBUILD_LOGIN_URL, use_browserstack=use_browserstack)
-        if driver:
-            st.success("Inicio de sesión exitoso en EasyBuild.")
-            if screenshot:
-                display_screenshot(screenshot)
-            driver.quit()
-
-    # Línea divisoria gris
-    st.markdown("<hr style='border:1px solid gray'>", unsafe_allow_html=True)
-
-    # Segundo intento de iniciar sesión en LeadSales
     if st.button("Iniciar Sesión en LeadSales"):
-        driver, screenshot = login_selenium(LEADSALES_EMAIL, LEADSALES_PASSWORD, LEADSALES_LOGIN_URL, email_field_name="email", password_field_name="password", use_browserstack=use_browserstack)
+        driver, screenshot = login_selenium_leadsales(LEADSALES_EMAIL, LEADSALES_PASSWORD, use_browserstack=use_browserstack)
         if driver:
-            st.success("Inicio de sesión exitoso en LeadSales.")
-            if screenshot:
-                display_screenshot(screenshot)
+            st.success("Proceso completado.")
             driver.quit()
 
 if __name__ == "__main__":
