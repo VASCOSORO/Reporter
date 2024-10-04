@@ -24,7 +24,7 @@ SMARTY_LOGIN_URL = "https://smartycart.com.ar/users/login"
 
 def login_selenium_smart(username, password, use_browserstack=True):
     """
-    Función para iniciar sesión en Smarty y hacer una pausa para que el usuario complete el reCAPTCHA manualmente.
+    Función para iniciar sesión en Smarty usando BrowserStack y ejecutar todo el proceso.
     """
     try:
         if use_browserstack:
@@ -53,12 +53,12 @@ def login_selenium_smart(username, password, use_browserstack=True):
         # Navegar a la página de Smarty
         driver.get(SMARTY_LOGIN_URL)
 
+        # Esperar a que la página cargue
+        wait = WebDriverWait(driver, 15)
+
         # Captura de pantalla después de cargar la página
         screenshot1 = driver.get_screenshot_as_png()
         st.image(screenshot1, caption='Página de inicio de sesión de Smarty cargada', use_column_width=True)
-
-        # Esperar a que la página cargue
-        wait = WebDriverWait(driver, 15)
 
         # Encontrar y rellenar los campos de usuario y contraseña
         username_field = wait.until(EC.presence_of_element_located((By.NAME, 'data[User][username]')))
@@ -71,29 +71,32 @@ def login_selenium_smart(username, password, use_browserstack=True):
         screenshot2 = driver.get_screenshot_as_png()
         st.image(screenshot2, caption='Credenciales ingresadas en Smarty', use_column_width=True)
 
-        # Mostrar mensaje para que el usuario complete el reCAPTCHA manualmente
-        st.warning("Por favor, resuelve el reCAPTCHA manualmente y luego presiona el botón para continuar.")
-        
-        # Pausar el script para esperar a que el usuario resuelva el reCAPTCHA
-        if st.button("He completado el reCAPTCHA"):
-            login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
-            login_button.click()
+        # Intentar resolver el reCAPTCHA
+        recaptcha_checkbox = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'recaptcha-checkbox')))
+        recaptcha_checkbox.click()
 
-            # Captura de pantalla después de intentar iniciar sesión
-            screenshot4 = driver.get_screenshot_as_png()
-            st.image(screenshot4, caption='Después de hacer clic en Ingresar en Smarty', use_column_width=True)
+        # Esperar unos segundos para asegurarse de que el CAPTCHA se complete
+        time.sleep(3)
 
-            # Esperar un poco para que procese el inicio de sesión
-            time.sleep(5)
+        # Hacer clic en el botón "Ingresar"
+        login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
+        login_button.click()
 
-            # Verificar si el inicio de sesión fue exitoso
-            if driver.current_url != SMARTY_LOGIN_URL:
-                st.success("Inicio de sesión exitoso en Smarty.")
-                return driver, screenshot4
-            else:
-                st.error("Error al iniciar sesión en Smarty. Verifica tus credenciales o el reCAPTCHA.")
-                driver.quit()
-                return None, None
+        # Captura de pantalla después de intentar iniciar sesión
+        screenshot3 = driver.get_screenshot_as_png()
+        st.image(screenshot3, caption='Después de hacer clic en Ingresar en Smarty', use_column_width=True)
+
+        # Esperar un poco para que procese el inicio de sesión
+        time.sleep(5)
+
+        # Verificar si el inicio de sesión fue exitoso
+        if driver.current_url != SMARTY_LOGIN_URL:
+            st.success("Inicio de sesión exitoso en Smarty.")
+            return driver, screenshot3
+        else:
+            st.error("Error al iniciar sesión en Smarty. Verifica tus credenciales o el reCAPTCHA.")
+            driver.quit()
+            return None, None
     except Exception as e:
         st.error(f"Error durante el inicio de sesión en Smarty: {e}")
         return None, None
@@ -120,4 +123,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
