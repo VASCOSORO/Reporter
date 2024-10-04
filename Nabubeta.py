@@ -16,12 +16,15 @@ BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
 EMAIL = "SomosMundo"
 PASSWORD = "74108520!Ii"  # Contraseña para EasyBuild
 
-# URL del sitio
+# URLs del sitio
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
+SALES_URL = "https://app.easybuild.website/admin/e-commerce/sales"
+PRODUCTS_URL = "https://app.easybuild.website/admin/e-commerce/products"
+STATS_SALES_URL = "https://app.easybuild.website/admin/statistics/sales"
 
-def login_selenium(email, password):
+def login_and_navigate_selenium(email, password, target_url):
     """
-    Función para iniciar sesión utilizando Selenium a través de BrowserStack.
+    Función para iniciar sesión en EasyBuild y navegar a la página seleccionada.
     """
     try:
         # Configuración de BrowserStack con 'options'
@@ -30,7 +33,7 @@ def login_selenium(email, password):
             'os': 'Windows',
             'osVersion': '10',
             'buildName': 'Build 1.0',
-            'sessionName': 'EasyBuild Login Test',
+            'sessionName': 'EasyBuild Login and Navigation',
             'userName': BROWSERSTACK_USERNAME,
             'accessKey': BROWSERSTACK_ACCESS_KEY
         })
@@ -59,30 +62,46 @@ def login_selenium(email, password):
         # Enviar el formulario
         password_field.send_keys(Keys.RETURN)
 
-        # Esperar a que se procese el inicio de sesión y verificar si fue exitoso
+        # Esperar a que el inicio de sesión sea exitoso
         time.sleep(5)
-        if driver.current_url != LOGIN_URL:
-            return driver
-        else:
-            st.error("Error al iniciar sesión. Verifica tus credenciales.")
-            driver.quit()
-            return None
+
+        # Navegar a la página seleccionada (ventas, productos o estadísticas)
+        driver.get(target_url)
+
+        # Esperar a que la página cargue
+        wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+        st.success(f"Navegaste a la página: {target_url} exitosamente.")
+
+        # Aquí podrías agregar código para extraer o manipular datos de la página
+
+        return driver
+
     except Exception as e:
-        st.error(f"Error durante el inicio de sesión con Selenium: {e}")
+        st.error(f"Error durante el inicio de sesión o la navegación: {e}")
         return None
 
 def main():
-    st.set_page_config(page_title="Automatización de Reportes - EasyBuild", layout="wide")
-    st.title("Automatización de Reportes - EasyBuild")
+    st.set_page_config(page_title="Automatización - EasyBuild", layout="wide")
+    st.title("Automatización - EasyBuild")
 
     st.write("""
-    Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) utilizando Selenium.
+    Este aplicativo permite iniciar sesión en EasyBuild y navegar a la página seleccionada:
+    - Ventas
+    - Productos
+    - Estadísticas de Ventas Online
     """)
 
-    if st.button("Iniciar Sesión en EasyBuild"):
-        driver = login_selenium(EMAIL, PASSWORD)
+    # Selección de la página a la que navegar
+    opcion = st.selectbox("Selecciona la página a la que deseas navegar:", 
+                          ["Gestor de Ventas", "Productos", "Estadísticas de Ventas Online"])
+
+    # Mapeo de la opción seleccionada a la URL correspondiente
+    target_url = SALES_URL if opcion == "Gestor de Ventas" else PRODUCTS_URL if opcion == "Productos" else STATS_SALES_URL
+
+    if st.button("Iniciar Sesión y Navegar"):
+        driver = login_and_navigate_selenium(EMAIL, PASSWORD, target_url)
         if driver:
-            st.success("Inicio de sesión exitoso.")
+            st.success("Proceso completado.")
             driver.quit()
 
 if __name__ == "__main__":
