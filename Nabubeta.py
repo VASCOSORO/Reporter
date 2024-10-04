@@ -125,8 +125,7 @@ def main():
 
     st.write("""
     Este aplicativo permite iniciar sesión en [LeadSales](https://leadsales.services/login) utilizando Selenium y navegar a una sección específica.
-    ""
-    )
+    """)
 
     # Seleccionar si usar BrowserStack o un controlador local
     use_browserstack = st.checkbox("Usar BrowserStack", value=True)
