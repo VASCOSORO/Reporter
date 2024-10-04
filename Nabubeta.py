@@ -171,7 +171,7 @@ def main():
     st.title("Automatización de Reportes con Ingreso")
 
     st.write("""
-    Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) y [LeadSales](https://leadsales.services/login) utilizando Selenium.
+    Comprobando ingresos positivos, lo logramos fue buena idea!👨‍🦼🕶️.
     """)
 
     # Seleccionar si usar BrowserStack o un controlador local
