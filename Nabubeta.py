@@ -1,9 +1,7 @@
 import streamlit as st
-from selenium import webdriver
+import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
 import logging
@@ -24,27 +22,22 @@ PASSWORD = os.getenv("PASSWORD")
 # URL del sitio
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
 
-def login_selenium(email, password):
+def login_selenium_uc(email, password):
     """
-    Función para iniciar sesión utilizando Selenium.
+    Función para iniciar sesión utilizando undetected-chromedriver.
     """
     try:
         logging.info("Configurando opciones de Chrome.")
         # Configurar el driver de Chrome
-        options = webdriver.ChromeOptions()
+        options = uc.ChromeOptions()
         options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
         options.add_argument('--no-sandbox')  # Evitar problemas de permisos
         options.add_argument('--disable-dev-shm-usage')  # Evitar problemas de memoria compartida
         options.add_argument('--disable-gpu')  # Desactivar uso de GPU
         options.add_argument('--window-size=1920,1080')  # Definir tamaño de ventana
 
-        logging.info("Instalando chromedriver.")
-        # Instalar y configurar el driver
-        driver_path = ChromeDriverManager().install()
-        os.chmod(driver_path, 0o755)  # Asegurar permisos de ejecución
-
-        logging.info("Iniciando el navegador.")
-        driver = webdriver.Chrome(service=ChromeService(driver_path), options=options)
+        logging.info("Iniciando undetected-chromedriver.")
+        driver = uc.Chrome(options=options)
         driver.get(LOGIN_URL)
 
         logging.info("Esperando a que la página cargue.")
@@ -77,8 +70,8 @@ def login_selenium(email, password):
             driver.quit()
             return None
     except Exception as e:
-        logging.error(f"Error durante el inicio de sesión con Selenium: {e}")
-        st.error(f"Error durante el inicio de sesión con Selenium: {e}")
+        logging.error(f"Error durante el inicio de sesión con undetected-chromedriver: {e}")
+        st.error(f"Error durante el inicio de sesión con undetected-chromedriver: {e}")
         return None
 
 def main():
@@ -90,7 +83,7 @@ def main():
     """)
 
     if st.button("Iniciar Sesión en EasyBuild"):
-        driver = login_selenium(EMAIL, PASSWORD)
+        driver = login_selenium_uc(EMAIL, PASSWORD)
         if driver:
             st.success("Inicio de sesión exitoso.")
             # Aquí puedes continuar con la automatización para obtener datos del sitio
