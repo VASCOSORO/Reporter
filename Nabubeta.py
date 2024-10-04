@@ -11,6 +11,9 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from webdriver_manager.chrome import ChromeDriverManager
 
+# Configuración de la página de Streamlit
+st.set_page_config(page_title="Automatización de Reportes", layout="wide")
+
 # Credenciales de BrowserStack
 BROWSERSTACK_USERNAME = 'vascorepo_7EFbsI'
 BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
@@ -120,7 +123,6 @@ def display_screenshot(screenshot):
     st.image(screenshot, caption='Captura de pantalla después del inicio de sesión', use_column_width=True)
 
 def main():
-    st.set_page_config(page_title="Automatización de Reportes", layout="wide")
     st.title("Automatización de Reportes - LeadSales")
 
     st.write("""
@@ -142,5 +144,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-if __name__ == "__main__":
-    main()
