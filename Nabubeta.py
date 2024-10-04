@@ -12,7 +12,7 @@ BROWSERSTACK_ACCESS_KEY = 'keVzqBxcjsyMJxYzUG9V'
 
 # Credenciales de EasyBuild
 EMAIL = "SomosMundo"
-PASSWORD = "741085207410P!i"  # Contraseña para EasyBuild
+PASSWORD = "74108520!Ii"  # Contraseña para EasyBuild
 
 # URL del sitio
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
@@ -22,7 +22,7 @@ def login_selenium(email, password):
     Función para iniciar sesión utilizando Selenium a través de BrowserStack.
     """
     try:
-        # Configuración de BrowserStack
+        # Configuración de BrowserStack con 'options'
         capabilities = {
             'bstack:options': {
                 'os': 'Windows',
@@ -31,14 +31,18 @@ def login_selenium(email, password):
                 'sessionName': 'EasyBuild Login Test',
                 'userName': BROWSERSTACK_USERNAME,
                 'accessKey': BROWSERSTACK_ACCESS_KEY,
-            }
+            },
+            'browserName': 'Chrome',
+            'browserVersion': 'latest',
         }
 
         # URL de BrowserStack
         browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
 
-        # Conectarse a BrowserStack con capabilities
+        # Conectarse a BrowserStack con 'options'
         driver = webdriver.Remote(command_executor=browserstack_url, desired_capabilities=capabilities)
+
+        # Navegar a la página de inicio de sesión
         driver.get(LOGIN_URL)
 
         # Esperar a que la página cargue
