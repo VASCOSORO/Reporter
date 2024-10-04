@@ -7,29 +7,17 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-import subprocess
-
-# Instalar dependencias necesarias para ejecutar Chrome en modo headless
-def install_dependencies():
-    try:
-        # Instalar paquetes adicionales necesarios para entornos headless
-        subprocess.run(['apt-get', 'update'], check=True)
-        subprocess.run(['apt-get', 'install', '-y', 'chromium-browser', 'chromium-chromedriver', 'libglib2.0-0', 
-                        'libnss3', 'libgconf-2-4', 'libfontconfig1', 'libxrender1', 'xvfb', 'libxi6', 
-                        'libgdk-pixbuf2.0-0', 'libasound2'], check=True)
-    except Exception as e:
-        st.error(f"Error al instalar dependencias: {e}")
 
 # Credenciales
 EMAIL = "SomosMundo"
-PASSWORD = "741085207410P!i"
+PASSWORD = "74108520!Ii"
 
 # URL del sitio
 LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
 
 def login_selenium(email, password):
     """
-    Función para iniciar sesión utilizando Selenium.
+    Función para iniciar sesión utilizando Selenium en modo headless.
     """
     try:
         # Configurar el driver de Chrome
@@ -37,8 +25,9 @@ def login_selenium(email, password):
         options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz)
         options.add_argument('--no-sandbox')  # Añadir no-sandbox para evitar problemas de permisos
         options.add_argument('--disable-dev-shm-usage')  # Evitar problemas de memoria compartida
-        options.add_argument('--remote-debugging-port=9222')  # Necesario para ejecutar Chrome en algunos entornos
+        options.add_argument('--remote-debugging-port=9222')  # Para ejecutar Chrome en algunos entornos
 
+        # Descargar e iniciar el ChromeDriver usando webdriver_manager
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
         driver.get(LOGIN_URL)
 
@@ -67,7 +56,6 @@ def login_selenium(email, password):
         st.error(f"Error durante el inicio de sesión con Selenium: {e}")
         return None
 
-
 def main():
     st.set_page_config(page_title="Automatización de Reportes - EasyBuild", layout="wide")
     st.title("Automatización de Reportes - EasyBuild")
@@ -75,9 +63,6 @@ def main():
     st.write("""
     Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) utilizando Selenium.
     """)
-
-    # Instalar las dependencias necesarias
-    install_dependencies()
 
     if st.button("Iniciar Sesión en EasyBuild"):
         driver = login_selenium(EMAIL, PASSWORD)
