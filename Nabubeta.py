@@ -1,3 +1,8 @@
+# =================================================
+# ======== VERSION DOBLE  2.o.3 ===================
+# =================================================
+
+
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -88,10 +93,20 @@ def main():
     Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) utilizando Selenium.
     """)
 
-    if st.button("Iniciar Sesión en EasyBuild"):
+    # Primer intento de iniciar sesión
+    if st.button("Iniciar Sesión en EasyBuild - Opción 1"):
         driver, screenshot = login_selenium(EMAIL, PASSWORD)
         if driver:
-            st.success("Inicio de sesión exitoso.")
+            st.success("Inicio de sesión exitoso en Opción 1.")
+            if screenshot:
+                display_screenshot(screenshot)
+            driver.quit()
+
+    # Segundo intento de iniciar sesión (duplicado)
+    if st.button("Iniciar Sesión en EasyBuild - Opción 2"):
+        driver, screenshot = login_selenium(EMAIL, PASSWORD)
+        if driver:
+            st.success("Inicio de sesión exitoso en Opción 2.")
             if screenshot:
                 display_screenshot(screenshot)
             driver.quit()
