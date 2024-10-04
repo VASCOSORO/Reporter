@@ -27,18 +27,16 @@ def login_selenium(email, password, login_url):
     Función para iniciar sesión utilizando Selenium a través de BrowserStack.
     """
     try:
-        # Configuración de BrowserStack con 'options'
+        # Configuración de BrowserStack con 'options' básicas
         options = webdriver.ChromeOptions()
+        options.set_capability('browserName', 'Chrome')
+        options.set_capability('browserVersion', 'latest')
         options.set_capability('bstack:options', {
             'os': 'Windows',
             'osVersion': '10',
-            'buildName': 'Build 1.0',
-            'sessionName': 'Login Test',
             'userName': BROWSERSTACK_USERNAME,
             'accessKey': BROWSERSTACK_ACCESS_KEY
         })
-        options.set_capability('browserName', 'Chrome')
-        options.set_capability('browserVersion', 'latest')
 
         # URL de BrowserStack
         browserstack_url = f"http://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub"
@@ -52,9 +50,9 @@ def login_selenium(email, password, login_url):
         # Esperar a que la página cargue
         wait = WebDriverWait(driver, 10)
 
-        # Encontrar y rellenar los campos de usuario y contraseña (ajustamos según la página)
-        username_field = wait.until(EC.presence_of_element_located((By.NAME, 'email')))  # Puede cambiar según el sitio
-        password_field = wait.until(EC.presence_of_element_located((By.NAME, 'password')))  # Puede cambiar según el sitio
+        # Encontrar y rellenar los campos de usuario y contraseña
+        username_field = wait.until(EC.presence_of_element_located((By.NAME, 'email')))
+        password_field = wait.until(EC.presence_of_element_located((By.NAME, 'password')))
 
         username_field.send_keys(email)
         password_field.send_keys(password)
@@ -67,7 +65,6 @@ def login_selenium(email, password, login_url):
         if driver.current_url != login_url:
             # Tomar la captura de pantalla
             screenshot = driver.get_screenshot_as_png()
-
             return driver, screenshot
         else:
             st.error("Error al iniciar sesión. Verifica tus credenciales.")
