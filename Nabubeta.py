@@ -62,7 +62,7 @@ def login_selenium_easybuild(email, password, login_url, sales_url, use_browsers
         driver.get(login_url)
 
         # Esperar a que la página cargue
-        wait = WebDriverWait(driver, 30)
+        wait = WebDriverWait(driver, 60)
 
         # Encontrar y rellenar los campos de usuario y contraseña
         username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
@@ -75,7 +75,7 @@ def login_selenium_easybuild(email, password, login_url, sales_url, use_browsers
         password_field.send_keys(Keys.RETURN)
 
         # Esperar un poco para que procese el inicio de sesión
-        time.sleep(16)
+        time.sleep(36)
 
         # Navegar a la sección de ventas de EasyBuild
         driver.get(sales_url)
