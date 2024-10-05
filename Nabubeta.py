@@ -63,7 +63,7 @@ def login_selenium_easybuild(email, password, login_url, dashboard_url, sales_ur
         driver.get(login_url)
 
         # Esperar a que la página cargue
-        wait = WebDriverWait(driver, 60)
+        wait = WebDriverWait(driver, 180)
 
         # Encontrar y rellenar los campos de usuario y contraseña
         username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
@@ -76,7 +76,7 @@ def login_selenium_easybuild(email, password, login_url, dashboard_url, sales_ur
         password_field.send_keys(Keys.RETURN)
 
         # Esperar un poco para que procese el inicio de sesión
-        time.sleep(30)
+        time.sleep(120)
 
         # Navegar al Dashboard de EasyBuild
         driver.get(dashboard_url)
@@ -140,7 +140,7 @@ def login_selenium_leadsales(email, password, use_browserstack=True):
         st.write("Página de LeadSales cargada.")
 
         # Esperar a que la página cargue
-        wait = WebDriverWait(driver, 60)
+        wait = WebDriverWait(driver, 120)
 
         # Captura de pantalla después de cargar la página
         screenshot1 = driver.get_screenshot_as_png()
@@ -161,7 +161,7 @@ def login_selenium_leadsales(email, password, use_browserstack=True):
         password_field.send_keys(Keys.RETURN)
 
         # Esperar un poco para que procese el inicio de sesión
-        time.sleep(30)
+        time.sleep(120)
 
         # Navegar a la sección de Directorio de LeadSales
         driver.get(LEADSALES_DIRECTORY_URL)
@@ -228,6 +228,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
