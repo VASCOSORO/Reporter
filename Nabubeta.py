@@ -62,7 +62,7 @@ def login_selenium_easybuild(email, password, login_url, sales_url, use_browsers
         driver.get(login_url)
 
         # Esperar a que la página cargue
-        wait = WebDriverWait(driver, 36)
+        wait = WebDriverWait(driver, 49)
 
         # Encontrar y rellenar los campos de usuario y contraseña
         username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
