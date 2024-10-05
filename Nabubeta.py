@@ -191,8 +191,7 @@ def main():
 
     st.write("""
     Este aplicativo permite iniciar sesión en [EasyBuild](https://auth.easybuild.website/login) y [LeadSales](https://leadsales.services/login) utilizando Selenium.
-    ""
-    )
+    """)
 
     # Seleccionar si usar BrowserStack o un controlador local
     use_browserstack = st.checkbox("Usar BrowserStack", value=True)
@@ -221,4 +220,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
