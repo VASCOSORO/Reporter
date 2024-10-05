@@ -25,12 +25,13 @@ LEADSALES_PASSWORD = "Pasteur39"
 
 # URLs de los sitios
 EASYBUILD_LOGIN_URL = "https://auth.easybuild.website/login?destroyedSession=true&host=app.easybuild.website"
+EASYBUILD_DASHBOARD_URL = "https://app.easybuild.website/admin/dashboard"
 EASYBUILD_SALES_URL = "https://app.easybuild.website/admin/e-commerce/sales"
 LEADSALES_LOGIN_URL = "https://leadsales.services/login"
 LEADSALES_DIRECTORY_URL = "https://leadsales.services/workspace/directory"
 
 
-def login_selenium_easybuild(email, password, login_url, sales_url, use_browserstack=True):
+def login_selenium_easybuild(email, password, login_url, dashboard_url, sales_url, use_browserstack=True):
     """
     Función para iniciar sesión en EasyBuild con Selenium, con opción para usar BrowserStack o un controlador local.
     """
@@ -62,7 +63,7 @@ def login_selenium_easybuild(email, password, login_url, sales_url, use_browsers
         driver.get(login_url)
 
         # Esperar a que la página cargue
-        wait = WebDriverWait(driver, 30)
+        wait = WebDriverWait(driver, 60)
 
         # Encontrar y rellenar los campos de usuario y contraseña
         username_field = wait.until(EC.presence_of_element_located((By.NAME, 'username')))
@@ -75,7 +76,14 @@ def login_selenium_easybuild(email, password, login_url, sales_url, use_browsers
         password_field.send_keys(Keys.RETURN)
 
         # Esperar un poco para que procese el inicio de sesión
-        time.sleep(20)
+        time.sleep(30)
+
+        # Navegar al Dashboard de EasyBuild
+        driver.get(dashboard_url)
+        st.write("Navegando al Dashboard de EasyBuild.")
+
+        # Esperar a que la página cargue
+        wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
 
         # Navegar a la sección de ventas de EasyBuild
         driver.get(sales_url)
@@ -132,7 +140,7 @@ def login_selenium_leadsales(email, password, use_browserstack=True):
         st.write("Página de LeadSales cargada.")
 
         # Esperar a que la página cargue
-        wait = WebDriverWait(driver, 30)
+        wait = WebDriverWait(driver, 60)
 
         # Captura de pantalla después de cargar la página
         screenshot1 = driver.get_screenshot_as_png()
@@ -153,7 +161,7 @@ def login_selenium_leadsales(email, password, use_browserstack=True):
         password_field.send_keys(Keys.RETURN)
 
         # Esperar un poco para que procese el inicio de sesión
-        time.sleep(20)
+        time.sleep(30)
 
         # Navegar a la sección de Directorio de LeadSales
         driver.get(LEADSALES_DIRECTORY_URL)
@@ -198,7 +206,7 @@ def main():
 
     # Iniciar sesión en EasyBuild
     if st.button("Iniciar Sesión en EasyBuild"):
-        driver, screenshot = login_selenium_easybuild(EASYBUILD_EMAIL, EASYBUILD_PASSWORD, EASYBUILD_LOGIN_URL, EASYBUILD_SALES_URL, use_browserstack=use_browserstack)
+        driver, screenshot = login_selenium_easybuild(EASYBUILD_EMAIL, EASYBUILD_PASSWORD, EASYBUILD_LOGIN_URL, EASYBUILD_DASHBOARD_URL, EASYBUILD_SALES_URL, use_browserstack=use_browserstack)
         if driver:
             st.success("Inicio de sesión exitoso en EasyBuild.")
             if screenshot:
@@ -220,5 +228,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
